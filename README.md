@@ -75,9 +75,13 @@ kibana的elasticsearchHosts参数配置为ckibana代理地址，这样就能走�
 eg：elasticsearchHosts=http://ip:port
 ```
 
-**4）在kibana中创建index pattern**
+**4）配置index pattern白名单**
 
-在kibana页面创建index pattern，名字跟1）的表名一致，然后就可以在kibana中进行查询了
+配置了对应的白名单，才可以在下一步创建index pattern
+
+**5）在kibana中创建index pattern**
+
+在kibana页面创建index pattern，名字跟1）的表名一致，且4）中配置白名单，然后就可以在kibana中进行查询了
 ```shell
 eg：如果ck表名是table_test，则创建index pattern的名字就是table_test
 ```
