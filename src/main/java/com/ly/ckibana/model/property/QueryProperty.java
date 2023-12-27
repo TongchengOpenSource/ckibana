@@ -45,5 +45,5 @@ public class QueryProperty {
     /**
      * 最大结果条数。若大于或等于此阈值,抛出异常,否则可能引发oom.
      */
-    private int maxResultRow;
+    private int maxResultRow = 30000;
 }
