@@ -1,0 +1,18 @@
+# spring
+spring:
+  application:
+    name: ckibana
+  banner:
+    location: banner.txt
+server:
+  port: 8080
+
+logging:
+  config: classpath:logback-spring.xml
+  file:
+    path: ${LOGS_PATH}
+
+metadata-config:
+  hosts: 10.100.216.132:30623
+  headers:
+    stoken: 245c5a1365cc93c039be0d49

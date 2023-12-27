@@ -1,0 +1,17 @@
+# spring
+spring:
+  application:
+    name: ckibana
+
+server:
+  port: 8080
+
+logging:
+  config: classpath:logback-spring.xml
+  file:
+    path: ${LOGS_PATH}
+
+metadata-config:
+  hosts: 10.177.40.233:9206
+  headers:
+    Authorization: 'Bearer AAEAAWVsYXN0aWMva2liYW5hL2tpYmFuYS1raWJhbmE6bFZqbEJjOWFRbXktUGRBZTc1dm8zZw'

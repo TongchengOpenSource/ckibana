@@ -1,0 +1,16 @@
+# spring
+spring:
+  application:
+    name: ckibana-uc
+  banner:
+    location: banner.txt
+  profiles:
+    active: ut
+server:
+  port: 8081
+
+logging:
+  config: classpath:logback-spring.xml
+settingsSuffix: unittest
+
+
