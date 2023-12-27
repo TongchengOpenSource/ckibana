@@ -15,4 +15,4 @@ logging:
 metadata-config:
   hosts: your es metadata cluster hosts
   headers:
-    headerKey: yourHeaderValue
+    yourHeaderKey: yourHeaderValue
