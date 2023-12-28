@@ -1,16 +1,8 @@
-<p align="center">
-  <a href="https://github.com/TongchengOpenSource/ckibana" target="_blank">
-    <img alt="CKibana Logo" width="200" src="https://oss.17usoft.com/infra-github/ckibana/logo-black.svg">
-  </a>
-</p>
-<p align="center">
-  <a href="https://github.com/TongchengOpenSource/ckibana/blob/main/LICENSE">
-    <img src="https://img.shields.io/github/license/TongchengOpenSource/ckibana" alt="License">
-  </a>
-  <a href="https://github.com/TongchengOpenSource/ckibana/releases">
-    <img src="https://img.shields.io/github/release/TongchengOpenSource/ckibana?color=brightgreen&label=Release" alt="Release">
-  </a>
-</p>
+![CKibana Logo (Light)](img/logo-black.png#gh-light-mode-only)
+![CKibana Logo (Dark)](img/logo-white.png#gh-dark-mode-only)
+
+[![License](https://img.shields.io/github/license/TongchengOpenSource/ckibana)](LICENSE)
+[![License](https://img.shields.io/github/release/TongchengOpenSource/ckibana?color=brightgreen&label=Release)](Release)
 
 ## Introduce
 
