@@ -46,7 +46,7 @@ java version "17.0.5"
 
 **1）建库、建表**
 
-在ck中初始化库、表结构，可以参考[参数描述文档](https://github.com/xxx/xxx) 建表详解部分
+在ck中初始化库、表结构，可以参考[api-docs](https://github.com/TongchengOpenSource/ckibana-docs/blob/main/api-docs.md) 建表详解部分
 
 **2）启动ckibana**
 
@@ -86,12 +86,8 @@ eg：elasticsearchHosts=http://ip:port
 eg：如果ck表名是table_test，则创建index pattern的名字就是table_test
 ```
 
-以上4步都操作完以后，就可以创建大盘，开始进行使用了
+以上5步都操作完以后，就可以创建大盘，开始进行使用了
 
-### 使用Kubernetes快速体验ckibana
-
-为了快速体验，我们提供了Helm Charte的方式，快速启动ckibana服务，同时启动相关依赖服务，方便快速体验ckibana的功能。
-具体可见[ckibana-helm](https://github.com/xxx/xxx)
 
 
 ## TODO
