@@ -1,4 +1,16 @@
-# CKibana
+<p align="center">
+  <a href="https://github.com/TongchengOpenSource/ckibana" target="_blank">
+    <img alt="CKibana Logo" width="200" src="https://oss.17usoft.com/infra-github/ckibana/logo-black.svg">
+  </a>
+</p>
+<p align="center">
+  <a href="https://github.com/TongchengOpenSource/ckibana/blob/main/LICENSE">
+    <img src="https://img.shields.io/github/license/TongchengOpenSource/ckibana" alt="License">
+  </a>
+  <a href="https://github.com/TongchengOpenSource/ckibana/releases">
+    <img src="https://img.shields.io/github/release/TongchengOpenSource/ckibana?color=brightgreen&label=Release" alt="Release">
+  </a>
+</p>
 
 ## Introduce
 
