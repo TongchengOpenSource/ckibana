@@ -1,0 +1,25 @@
+filebeat.inputs:
+  - type: log
+    paths:
+      - /var/log/nginx/access.log
+    encoding: utf-8
+    json.keys_under_root: true
+    json.add_error_key: true
+output.clickHouse:
+  # clickhouse数据库配置
+  # https://github.com/ClickHouse/clickhouse-go
+  # 示例 tcp://host1:9000?username=user&password=qwerty&database=clicks&read_timeout=10&write_timeout=20&alt_hosts=host2:9000,host3:9000
+  url: "tcp://clickhouse-1:9000?username=default&password=default&debug=true"
+  # 接收数据的表名
+  table: ops.ops_nginx_local
+  # 数据过滤器的表列，匹配日志文件中对应的键
+  columns: [ "request_method", "request_uri", "status", "request_time", "request_length", "http_referer", "http_user_agent", "http_host", "request_id", "remote_addr", "bytes_sent", "body_bytes_sent", "@timestamp"]
+  # 异常重试休眠时间 单位：秒
+  retry_interval: 60
+  # 是否跳过异常事件推送 true-表示跳过执行异常实践 false-会一直重试，重试间隔为retry_interval
+  skip_unexpected_type_row: false
+  # 批处理数据量，影响filebeat每次抓取数据行
+  bulk_max_size: 1000
+
+  #output.console:
+  #  pretty: true

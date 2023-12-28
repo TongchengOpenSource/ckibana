@@ -1,0 +1,43 @@
+<clickhouse>
+    <!-- Macros -->
+    <macros>
+        <shard from_env="CLICKHOUSE_SHARD_ID"></shard>
+        <layer>ckibana-clickhouse</layer>
+    </macros>
+    <!-- Log Level -->
+    <logger>
+        <level>information</level>
+    </logger>
+    <!-- Cluster configuration - Any update of the shards and replicas requires helm upgrade -->
+    <remote_servers>
+        <default>
+            <shard>
+                <internal_replication>false</internal_replication>
+                <replica>
+                    <host>clickhouse-1</host>
+                    <port>9000</port>
+                    <user from_env="CLICKHOUSE_ADMIN_USER"></user>
+                    <password from_env="CLICKHOUSE_ADMIN_PASSWORD"></password>
+                </replica>
+            </shard>
+            <shard>
+                <internal_replication>false</internal_replication>
+                <replica>
+                    <host>clickhouse-2</host>
+                    <port>9000</port>
+                    <user from_env="CLICKHOUSE_ADMIN_USER"></user>
+                    <password from_env="CLICKHOUSE_ADMIN_PASSWORD"></password>
+                </replica>
+            </shard>
+            <shard>
+                <internal_replication>false</internal_replication>
+                <replica>
+                    <host>clickhouse-3</host>
+                    <port>9000</port>
+                    <user from_env="CLICKHOUSE_ADMIN_USER"></user>
+                    <password from_env="CLICKHOUSE_ADMIN_PASSWORD"></password>
+                </replica>
+            </shard>
+        </default>
+    </remote_servers>
+</clickhouse>

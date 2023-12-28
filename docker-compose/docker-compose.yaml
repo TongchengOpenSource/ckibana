@@ -1,0 +1,143 @@
+version: "2"
+
+services:
+
+  kibana:
+    image: docker.io/kibana:6.8.22
+    hostname: kibana
+    container_name: kibana
+    environment:
+      ELASTICSEARCH_HOSTS: http://ckibana:8080
+      NODE_OPTIONS: --max-old-space-size=1800
+    ports:
+      - "127.0.0.1:5601:5601"
+
+
+  ckibana:
+    image: docker.io/ting001/ckibana:0.0.2
+    hostname: ckibana
+    container_name: ckibana
+    restart: always
+    volumes:
+      - ./config/ckibana-application.yaml:/wd/application.yaml
+    ports:
+      - "127.0.0.1:8080:8080"
+    entrypoint: [ "java", "-jar","-Dspring.config.location=/wd/application.yaml","app.jar" ]
+
+
+  elasticsearch:
+    image: docker.io/elasticsearch:6.8.22
+    hostname: elasticsearch
+    container_name: elasticsearch
+    environment:
+      - discovery.zen.minimum_master_nodes=1
+      - discovery.zen.ping.unicast.hosts=elasticsearch
+      - cluster.name=elasticsearch
+      - network.host=0.0.0.0
+      - node.data=true
+      - node.master=true
+    ports:
+      - "127.0.0.1:9200:9200"
+
+
+  clickhouse-1:
+    image: docker.io/bitnami/clickhouse:23.8.3-debian-11-r0
+    hostname: clickhouse-1
+    container_name: clickhouse-1
+    environment:
+      - BITNAMI_DEBUG=false
+      - CLICKHOUSE_HTTP_PORT=8123
+      - CLICKHOUSE_TCP_PORT=9000
+      - CLICKHOUSE_MYSQL_PORT=9004
+      - CLICKHOUSE_POSTGRESQL_PORT=9005
+      - CLICKHOUSE_INTERSERVER_HTTP_PORT=9009
+      - CLICKHOUSE_ADMIN_USER=default
+      - CLICKHOUSE_ADMIN_PASSWORD=default
+      - CLICKHOUSE_SHARD_ID=shard0
+    volumes:
+      - ./config/clickhouse/setup.sh:/scripts/setup.sh
+      - ./config/clickhouse/config:/bitnami/clickhouse/etc/conf.d/default
+      - ./config/clickhouse/custom-init-scripts:/docker-entrypoint-initdb.d
+    entrypoint: /scripts/setup.sh
+
+  clickhouse-2:
+    image: docker.io/bitnami/clickhouse:23.8.3-debian-11-r0
+    hostname: clickhouse-2
+    container_name: clickhouse-2
+    environment:
+      - BITNAMI_DEBUG=false
+      - CLICKHOUSE_HTTP_PORT=8123
+      - CLICKHOUSE_TCP_PORT=9000
+      - CLICKHOUSE_MYSQL_PORT=9004
+      - CLICKHOUSE_POSTGRESQL_PORT=9005
+      - CLICKHOUSE_INTERSERVER_HTTP_PORT=9009
+      - CLICKHOUSE_ADMIN_USER=default
+      - CLICKHOUSE_ADMIN_PASSWORD=default
+      - CLICKHOUSE_SHARD_ID=shard0
+    volumes:
+      - ./config/clickhouse/setup.sh:/scripts/setup.sh
+      - ./config/clickhouse/config:/bitnami/clickhouse/etc/conf.d/default
+      - ./config/clickhouse/custom-init-scripts:/docker-entrypoint-initdb.d
+    entrypoint: /scripts/setup.sh
+
+  clickhouse-3:
+    image: docker.io/bitnami/clickhouse:23.8.3-debian-11-r0
+    hostname: clickhouse-3
+    container_name: clickhouse-3
+    environment:
+      - BITNAMI_DEBUG=false
+      - CLICKHOUSE_HTTP_PORT=8123
+      - CLICKHOUSE_TCP_PORT=9000
+      - CLICKHOUSE_MYSQL_PORT=9004
+      - CLICKHOUSE_POSTGRESQL_PORT=9005
+      - CLICKHOUSE_INTERSERVER_HTTP_PORT=9009
+      - CLICKHOUSE_ADMIN_USER=default
+      - CLICKHOUSE_ADMIN_PASSWORD=default
+      - CLICKHOUSE_SHARD_ID=shard0
+    volumes:
+      - ./config/clickhouse/setup.sh:/scripts/setup.sh
+      - ./config/clickhouse/config:/bitnami/clickhouse/etc/conf.d/default
+      - ./config/clickhouse/custom-init-scripts:/docker-entrypoint-initdb.d
+    entrypoint: /scripts/setup.sh
+
+
+  mock-init:
+    image: docker.io/curlimages/curl:8.4.0
+    hostname: mock-init
+    container_name: mock-init
+    volumes:
+      - ./config/mock-init.sh:/init.sh
+    entrypoint: /bin/sh
+    command: ["-c", "/init.sh" ]
+
+
+  mock-nginx:
+    image: docker.io/nginx:1.25.2
+    hostname: mock-nginx
+    container_name: mock-nginx
+    volumes:
+        - ./config/mock-nginx.conf:/etc/nginx/nginx.conf
+        - mock-nginx-logs:/var/log/nginx
+
+
+  mock-curl2nginx:
+    image: docker.io/curlimages/curl:8.4.0
+    hostname: mock-curl2nginx
+    container_name: mock-curl2nginx
+    volumes:
+      - ./config/mock-curl2nginx.sh:/init.sh
+    entrypoint: /bin/sh
+    command: ["-c", "/init.sh"]
+
+
+  mock-filebeat:
+    image: docker.io/ting001/file-beat-ck:0.0.3
+    hostname: mock-filebeat
+    container_name: mock-filebeat
+    volumes:
+      - ./config/mock-filebeat.yml:/usr/share/filebeat/filebeat.yml
+      - mock-nginx-logs:/var/log/nginx
+
+
+volumes:
+  mock-nginx-logs:
