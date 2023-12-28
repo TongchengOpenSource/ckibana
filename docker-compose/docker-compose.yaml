@@ -10,7 +10,7 @@ services:
       ELASTICSEARCH_HOSTS: http://ckibana:8080
       NODE_OPTIONS: --max-old-space-size=1800
     ports:
-      - "127.0.0.1:5601:5601"
+      - "0.0.0.0:5601:5601"
 
 
   ckibana:
@@ -20,8 +20,6 @@ services:
     restart: always
     volumes:
       - ./config/ckibana-application.yaml:/wd/application.yaml
-    ports:
-      - "127.0.0.1:8080:8080"
     entrypoint: [ "java", "-jar","-Dspring.config.location=/wd/application.yaml","app.jar" ]
 
 
@@ -44,6 +42,8 @@ services:
     image: docker.io/bitnami/clickhouse:23.8.3-debian-11-r0
     hostname: clickhouse-1
     container_name: clickhouse-1
+    user: "root"
+    privileged: true
     environment:
       - BITNAMI_DEBUG=false
       - CLICKHOUSE_HTTP_PORT=8123
@@ -64,6 +64,8 @@ services:
     image: docker.io/bitnami/clickhouse:23.8.3-debian-11-r0
     hostname: clickhouse-2
     container_name: clickhouse-2
+    user: "root"
+    privileged: true
     environment:
       - BITNAMI_DEBUG=false
       - CLICKHOUSE_HTTP_PORT=8123
@@ -84,6 +86,8 @@ services:
     image: docker.io/bitnami/clickhouse:23.8.3-debian-11-r0
     hostname: clickhouse-3
     container_name: clickhouse-3
+    user: "root"
+    privileged: true
     environment:
       - BITNAMI_DEBUG=false
       - CLICKHOUSE_HTTP_PORT=8123
@@ -116,8 +120,8 @@ services:
     hostname: mock-nginx
     container_name: mock-nginx
     volumes:
-        - ./config/mock-nginx.conf:/etc/nginx/nginx.conf
-        - mock-nginx-logs:/var/log/nginx
+      - ./config/mock-nginx.conf:/etc/nginx/nginx.conf
+      - mock-nginx-logs:/var/log/nginx
 
 
   mock-curl2nginx:
