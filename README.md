@@ -45,6 +45,63 @@ CKibana是一个为了能够在原生kibana上直接使用ElasticSearch语法查
 | filter item             |                        |
 | cardinality             |                        |
 
+## Get started
+
+### 本地运行 ckibana
+ckibana可以在所有主要操作系统上运行，需要安装Java JDK版本17或更高版本。要检查，请运行
+`java -version`:
+```shell
+$ java -version
+java version "17.0.5" 
+```
+代理服务依赖**ES、CK、Kibana**服务，需要提前准备好。以下只包含从ck查询数据步骤，不包含写数据到ck的步骤。
+
+**1）建库、建表**
+
+在ck中初始化库、表结构，可以参考[api-docs](https://github.com/TongchengOpenSource/ckibana-docs/blob/main/api-docs.md) 建表详解部分
+
+**2）启动ckibana**
+
+修改ckibana中的ES配置，需要改为自身的ES信息，配置文件路径为`src/main/resources/application.yml`
+```yaml
+metadata-config:
+  hosts: your es metadata cluster hosts
+  headers:
+    headerKey: yourHeaderValue
+```
+打包运行 或者 本地运行直接com.ly.ckibana.Bootstrap类即可
+```shell
+### start ckibana
+$ nohup java -jar ckibana.jar > run.out 2>&1 &
+
+### check whether ckibana is successfully started
+$ tail -f ~/logs/app.log
+Tomcat started on port(s): 8080 (http) with context path ''
+Started Bootstrap in 1.474 seconds
+```
+
+**3）启动kibana**
+
+kibana的elasticsearchHosts参数配置为ckibana代理地址，这样就能走到代理服务中来
+```shell
+eg：elasticsearchHosts=http://ip:port
+```
+
+**4）配置index pattern白名单**
+
+配置了对应的白名单，才可以在下一步创建index pattern
+
+**5）在kibana中创建index pattern**
+
+在kibana页面创建index pattern，名字跟1）的表名一致，且4）中配置白名单，然后就可以在kibana中进行查询了
+```shell
+eg：如果ck表名是table_test，则创建index pattern的名字就是table_test
+```
+
+以上5步都操作完以后，就可以创建大盘，开始进行使用了
+
+
+
 ## TODO
 
 - 分段查询: 支持自动拆分查询时间,可以充分利用缓存,提升查询性能
