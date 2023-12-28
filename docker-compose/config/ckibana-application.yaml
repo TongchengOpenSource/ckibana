@@ -1,0 +1,14 @@
+spring:
+  application:
+    name: ckibana
+server:
+  port: 8080
+logging:
+  config: classpath:logback-spring.xml
+  file:
+    path: logs
+
+metadata-config:
+  hosts: elasticsearch:9200
+  headers:
+    mock: 'mock'
