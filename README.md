@@ -38,6 +38,27 @@ CKibana是一个为了能够在原生kibana上直接使用ElasticSearch语法查
 | cardinality             |                        |
 
 ## Get started
+### quick start
+要快速体验ckibana，可以通过docker-compose进行快速部署
+
+[ckibana-quick-start文档](https://github.com/TongchengOpenSource/ckibana/blob/main/docker-compose/README.md)
+
+```shell
+# 进入docker-compose目录
+cd ckibana/docker-compose
+# 部署
+docker-compose up -d
+```
+部署完成后，在浏览器访问kibana：http://127.0.0.1:5601/
+
+已内置了mock数据的流程，导入kibana配置文件（大盘、index-pattern等），就可以开始体验了！
+
+配置文件路径：docker-compose/quickstart-export.json
+![](docker-compose/image/dashboard-import.jpg)
+效果展示：
+![](docker-compose/image/dashboard.jpg)
+
+
 
 ### 本地运行 ckibana
 ckibana可以在所有主要操作系统上运行，需要安装Java JDK版本17或更高版本。要检查，请运行

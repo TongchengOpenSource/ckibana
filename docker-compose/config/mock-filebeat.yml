@@ -1,7 +1,7 @@
 filebeat.inputs:
   - type: log
     paths:
-      - /var/log/nginx/access.log
+      - /var/log/nginx/access-1.log
     encoding: utf-8
     json.keys_under_root: true
     json.add_error_key: true
