@@ -134,7 +134,6 @@ public class ParamHandler extends BaseHandler {
             }
     
             String body = proxyConfigLoader.getYaml().dumpAs(kibanaProperty, Tag.MAP, DumperOptions.FlowStyle.BLOCK);
-            log.info("update settings:[{}], body:{}", proxyConfigLoader.getSettingsIndexName(), body);
             String response =  EsClientUtil.saveOne(proxyConfigLoader.getMetadataRestClient(), proxyConfigLoader.getSettingsIndexName(),
                     "kibana",
                     Map.of(
@@ -149,7 +148,7 @@ public class ParamHandler extends BaseHandler {
             if (updateEs) {
                 kibanaProperty.getProxy().setEs(null);
             }
-            log.info("update settings response:[{}]", response);
+            log.info("update settings:[{}], body:{}, response:[{}]", proxyConfigLoader.getSettingsIndexName(), body, response);
             return response;
         } catch (Exception e) {
             return ProxyUtils.getErrorResponse(e);
