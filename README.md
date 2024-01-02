@@ -4,85 +4,91 @@
 [![License](https://img.shields.io/github/license/TongchengOpenSource/ckibana)](LICENSE)
 [![License](https://img.shields.io/github/release/TongchengOpenSource/ckibana?color=brightgreen&label=Release)](Release)
 
+**ClickHouse adapter for Kibana**
+
+**ClickHouse proxy for Kibana**
+
+#### English | [简体中文](README_cn.md)
+
 ## Introduce
 
-CKibana: ClickHouse adapter for Kibana (ClickHouse proxy for kibana)
+CKibana is a service for convenient analysis of ClickHouse data using native Kibana.
 
-CKibana是一个为了能够在原生kibana上直接使用ElasticSearch语法查询ClickHouse的服务。常见使用场景如:nginx日志从ElasticSearch迁移到ClickHouse后,不需要业务调整使用习惯就可以直接使用。
+A typical use case is when nginx log storage is migrated from ElasticSearch to ClickHouse,users can seamlessly continue their log query and analysis with Kibana.
 
 ## Features
 
-- 版本支持: 兼容ElasticSearch跟kibana 6.x、7.x、8.x 版本
-- 语法支持: 兼容ElasticSearch常用语法(注: ip_range跟date_range仅可在搜索框中使用querystring语法查询)
-- 采样功能: 对于命中结果超过阈值的查询,支持动态计算采样+还原结果,提高查询性能且保障图表趋势基本跟真实数据趋势一致(限流阈值越大跟真实图表趋势越接近)。
-- 缓存功能: 支持使用ElasticSearch来做结果缓存,来提升重复查询的性能
-- 时间Round功能: 支持round查询时间,比如20s的round(例子: 查询时间秒在0-19s则自动round到0,20s-39s自动round到20s,比如查询时间是从01:50:15到05:52:47,则自动调整为从01:
-  50:00到05:52:40),配合缓存功能使用可以很好的缓解多个用户并发查询相同语句造成ClickHouse的压力
-- 黑名单功能: 支持设置黑名单来防止复杂语句造成ClickHouse压力
-- 查询模板功能: 支持按照去除时间后的语法监控,方便快速定位问题,配合黑名单功能一起使用可以很好的保障ClickHouse
-- 查询熔断: 支持配置最大查询时间范围等高级功能
+- Version Support: Compatible with ElasticSearch and Kibana versions 6.x, 7.x, and 8.x.
+- Translation: Syntax Support: Compatible with common ElasticSearch syntax (note: ip_range and date_range can only be queried using the querystring syntax in the search box).
+- Sampling Function: For queries with hit results exceeding the threshold, it supports dynamic calculation of sampling and result restoration to improve query performance and ensure that the basic trend of the chart is consistent with the real data trend (the larger the flow control threshold, the closer the real chart trend is).
+- Cache Function: Supports using ElasticSearch to cache results to improve the performance of repeated queries.
+- Time Round Function: Supports rounding query time, for example, round 20 seconds (example: if the query time is in seconds 0-19, it will automatically round to 0; if it is in seconds 20-39, it will automatically round to 20 seconds, for example, if the query time is from 01:50:15 to 05:52:47, it will automatically adjust to 01:50:00 to 05:52:40). Used in conjunction with the cache function, it can effectively alleviate the pressure on ClickHouse caused by concurrent queries of the same statement by multiple users.
+- Blacklist Function: Supports setting a blacklist to prevent complex statements from causing pressure on ClickHouse.
+- Query Template Function: Supports syntax monitoring after removing time to facilitate quick problem location. Used in conjunction with the blacklist function, it can effectively ensure the stability of ClickHouse.
+- Query Circuit Breaker: Supports advanced features such as configuring the maximum query time range.
 
-#### 支持的聚合语法：
+#### Supported Aggregation Syntax:
 
-| ES语法                  | 说明                     |
-|-----------------------|------------------------|
-| terms                   |                        |
-| sum                     |                        |
-| min                     |                        |
-| max                    |                        |
-| avg                     |                        |
-| percentile_ranks         |                        |
-| percentiles             |                        |
-| filters                 | 目前仅支持第一层聚合             |
-| filter item             |                        |
-| cardinality             |                        |
+| ES Syntax                  | Note       |
+|-----------------------|------------|
+| terms                   |            |
+| sum                     |            |
+| min                     |            |
+| max                    |            |
+| avg                     |            |
+| percentile_ranks         |            |
+| percentiles             |            |
+| filters                 | Currently, only the first level of aggregation is supported. |
+| filter item             |            |
+| cardinality             |            |
 
 ## Get started
 ### quick start
-要快速体验ckibana，可以通过docker-compose进行快速部署
+To quickly experience Kibana, you can deploy it quickly using docker-compose.
 
-[ckibana-quick-start文档](https://github.com/TongchengOpenSource/ckibana/blob/main/docker-compose/README.md)
+[ckibana-quick-start-doc](https://github.com/TongchengOpenSource/ckibana/blob/main/docker-compose/README.md)
 
 ```shell
-# 进入docker-compose目录
+# Enter the docker-compose directory.
 cd ckibana/docker-compose
-# 部署
+# Deploy
 docker-compose up -d
 ```
-部署完成后，在浏览器访问kibana：http://127.0.0.1:5601/
+After deployment is complete, access Kibana in a browser at： http://127.0.0.1:5601/
 
-已内置了mock数据的流程，导入kibana配置文件（大盘、index-pattern等），就可以开始体验了！
+A process with built-in mock data has been included. After importing the Kibana configuration file (dashboard, index-pattern, etc.), you can start experiencing it!
 
-配置文件路径：docker-compose/quickstart-export.json
+Configuration file path：docker-compose/quickstart-export.json
 ![](docker-compose/image/dashboard-import.jpg)
-效果展示：
+Effect display：
 ![](docker-compose/image/dashboard.jpg)
 
 
 
-### 本地运行 ckibana
-ckibana可以在所有主要操作系统上运行，需要安装Java JDK版本17或更高版本。要检查，请运行
-`java -version`:
+### Local run CKibana
+CKibana can be run on all major operating systems and requires Java JDK version 17 or higher to be installed. To check, please run:`java -version`:
+
 ```shell
 $ java -version
 java version "17.0.5" 
 ```
-代理服务依赖**ES、CK、Kibana**服务，需要提前准备好。以下只包含从ck查询数据步骤，不包含写数据到ck的步骤。
 
-**1）建库、建表**
+The proxy service depends on the **ES, CK, and Kibana services**, which need to be prepared in advance. The following steps only include querying data from CK and do not include writing data to CK.
 
-在ck中初始化库、表结构，可以参考[api-docs](https://github.com/TongchengOpenSource/ckibana-docs/blob/main/api-docs.md) 建表详解部分
+**1）Create a database and a table**
 
-**2）启动ckibana**
+To initialize database and table structures in ClickHouse, please refer to:[api-docs](https://github.com/TongchengOpenSource/ckibana-docs/blob/main/api-docs.md) Detailed explanation of creating a table
 
-修改ckibana中的ES配置，需要改为自身的ES信息，配置文件路径为`src/main/resources/application.yml`
+**2）Start CKibana**
+
+To modify the ES configuration in CKibana, you need to change it to your own ES information. The configuration file path is `src/main/resources/application.yml`
 ```yaml
 metadata-config:
   hosts: your es metadata cluster hosts
   headers:
     headerKey: yourHeaderValue
 ```
-打包运行 或者 本地运行直接com.ly.ckibana.Bootstrap类即可
+Package and run or run locally directly `com.ly.ckibana.Bootstrap`
 ```shell
 ### start ckibana
 $ nohup java -jar ckibana.jar > run.out 2>&1 &
@@ -93,39 +99,33 @@ Tomcat started on port(s): 8080 (http) with context path ''
 Started Bootstrap in 1.474 seconds
 ```
 
-**3）启动kibana**
+**3）start kibana**
 
-kibana的elasticsearchHosts参数配置为ckibana代理地址，这样就能走到代理服务中来
+Configure the elasticsearchHosts parameter in Kibana to the CKibana proxy address, so that it can be routed to the proxy service.
+
 ```shell
 eg：elasticsearchHosts=http://ip:port
 ```
 
-**4）配置index pattern白名单**
+**4）Configure the index pattern whitelist**
 
-配置了对应的白名单，才可以在下一步创建index pattern
+Only after configuring the corresponding whitelist can you proceed to create it in the next step `index pattern`
 
-**5）在kibana中创建index pattern**
+**5）Create `index pattern` in Kibana**
 
-在kibana页面创建index pattern，名字跟1）的表名一致，且4）中配置白名单，然后就可以在kibana中进行查询了
 ```shell
-eg：如果ck表名是table_test，则创建index pattern的名字就是table_test
+eg：If the CK table name is `table_test`, then create an index pattern `table_test`
 ```
 
-以上5步都操作完以后，就可以创建大盘，开始进行使用了
-
-
+After completing the above 5 steps, you can create a dashboard and start using it.
 
 ## TODO
 
-- 分段查询: 支持自动拆分查询时间,可以充分利用缓存,提升查询性能
+- Segmented query: Supports automatically splitting query time, which can fully utilize the cache and improve query performance.
 
-## 文档地址
+## Documentation address.
 [CKibane-docs](https://github.com/TongchengOpenSource/ckibana-docs)  
 
-## Contact
-
-愿意参与构建CKibana或者是需要交流问题可以加入qq群
-![](img/readme01.jpg)
 
 ## License
 
