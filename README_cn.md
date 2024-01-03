@@ -125,7 +125,7 @@ eg：如果ck表名是table_test，则创建index pattern的名字就是table_te
 ## Contact
 
 愿意参与构建CKibana或者是需要交流问题可以加入微信群(企业版微信和个人版本微信均可)
-![](http://oss.dss.17usoft.com/infra-github/ckibana/join-us.png)
+![](http://oss.17usoft.com/infra-github/ckibana/join-us.png)
 
 ## License
 
