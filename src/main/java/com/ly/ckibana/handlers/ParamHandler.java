@@ -92,13 +92,15 @@ public class ParamHandler extends BaseHandler {
             }
     
             KibanaProperty kibanaProperty = proxyConfigLoader.getKibanaProperty();
+            boolean updateCk = false;
+            boolean updateEs = false;
     
             switch (context.getRequestUrl()) {
                 case CK:
-                    updateCK(kibanaProperty, params);
+                    updateCk = updateCK(kibanaProperty, params);
                     break;
                 case ES:
-                    updateES(kibanaProperty, params);
+                    updateEs = updateES(kibanaProperty, params);
                     break;
                 case WHITE_INDEX_LIST:
                     kibanaProperty.getProxy().setWhiteIndexList(parseList(params));
@@ -132,20 +134,28 @@ public class ParamHandler extends BaseHandler {
             }
     
             String body = proxyConfigLoader.getYaml().dumpAs(kibanaProperty, Tag.MAP, DumperOptions.FlowStyle.BLOCK);
-            log.info("update settings:[{}], body:{}", proxyConfigLoader.getSettingsIndexName(), body);
-            return EsClientUtil.saveOne(proxyConfigLoader.getMetadataRestClient(), proxyConfigLoader.getSettingsIndexName(),
+            String response =  EsClientUtil.saveOne(proxyConfigLoader.getMetadataRestClient(), proxyConfigLoader.getSettingsIndexName(),
                     "kibana",
                     Map.of(
                             "key", "kibana",
                             "value", body
                     ),
                     proxyConfigLoader.getMajorVersion());
+            //让定时任务自动更新，重新创建ckDatasource、restClient
+            if (updateCk) {
+                kibanaProperty.getProxy().setCk(null);
+            }
+            if (updateEs) {
+                kibanaProperty.getProxy().setEs(null);
+            }
+            log.info("update settings:[{}], body:{}, response:[{}]", proxyConfigLoader.getSettingsIndexName(), body, response);
+            return response;
         } catch (Exception e) {
             return ProxyUtils.getErrorResponse(e);
         }
     }
     
-    private void updateCK(KibanaProperty kibanaProperty, Map<String, String> params) {
+    private boolean updateCK(KibanaProperty kibanaProperty, Map<String, String> params) {
         String jsonStr = JSON.toJSONString(params);
         CkProperty ckProperty = JSON.parseObject(jsonStr, CkProperty.class);
         if (StringUtils.isBlank(ckProperty.getUrl())
@@ -155,9 +165,10 @@ public class ParamHandler extends BaseHandler {
             throw new IllegalArgumentException("invalid parameter");
         }
         kibanaProperty.getProxy().setCk(ckProperty);
+        return true;
     }
     
-    private void updateES(KibanaProperty kibanaProperty, Map<String, String> params) {
+    private boolean updateES(KibanaProperty kibanaProperty, Map<String, String> params) {
         String host = params.get("host");
         String headersString = params.get("headers");
         if (StringUtils.isBlank(host)) {
@@ -172,6 +183,7 @@ public class ParamHandler extends BaseHandler {
         
         EsProperty esProperty = new EsProperty(host, headers);
         kibanaProperty.getProxy().setEs(esProperty);
+        return true;
     }
     
     private List<String> parseList(Map<String, String> params) {
