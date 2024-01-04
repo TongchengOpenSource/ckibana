@@ -8,6 +8,8 @@
 
 **ClickHouse proxy for Kibana**
 
+**Clickhouse Visual**
+
 #### English | [简体中文](README_cn.md)
 
 ## Introduce
