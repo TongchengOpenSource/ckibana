@@ -1,8 +1,8 @@
 ![CKibana Logo (Light)](img/logo-black.png#gh-light-mode-only)
 ![CKibana Logo (Dark)](img/logo-white.png#gh-dark-mode-only)
 
-[![License](https://img.shields.io/github/license/TongchengOpenSource/ckibana)](LICENSE)
-[![License](https://img.shields.io/github/release/TongchengOpenSource/ckibana?color=brightgreen&label=Release)](Release)
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+[![License](https://img.shields.io/github/release/TongchengOpenSource/ckibana.svg?color=brightgreen&label=Release)](Release)
 
 **ClickHouse adapter for Kibana**
 
