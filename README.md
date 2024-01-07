@@ -2,13 +2,13 @@
 ![CKibana Logo (Dark)](img/logo-white.png#gh-dark-mode-only)
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
-[![License](https://img.shields.io/github/release/TongchengOpenSource/ckibana.svg?color=brightgreen&label=Release)](Release)
+[![Release](https://img.shields.io/github/release/TongchengOpenSource/ckibana.svg?color=brightgreen&label=Release)](https://github.com/TongchengOpenSource/ckibana/releases)
 
 **ClickHouse adapter for Kibana**
 
 **ClickHouse proxy for Kibana**
 
-**Clickhouse Visual**
+**Clickhouse visualization tool**
 
 #### English | [简体中文](README_cn.md)
 
@@ -125,7 +125,7 @@ After completing the above 5 steps, you can create a dashboard and start using i
 
 - Segmented query: Supports automatically splitting query time, which can fully utilize the cache and improve query performance.
 
-## Documentation address.
+## Documentation
 [CKibane-docs](https://github.com/TongchengOpenSource/ckibana-docs)  
 
 
