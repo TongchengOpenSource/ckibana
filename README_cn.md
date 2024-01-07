@@ -1,14 +1,14 @@
 ![CKibana Logo (Light)](img/logo-black.png#gh-light-mode-only)
 ![CKibana Logo (Dark)](img/logo-white.png#gh-dark-mode-only)
 
-[![License](https://img.shields.io/github/license/TongchengOpenSource/ckibana)](LICENSE)
-[![License](https://img.shields.io/github/release/TongchengOpenSource/ckibana?color=brightgreen&label=Release)](Release)
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+[![Release](https://img.shields.io/github/release/TongchengOpenSource/ckibana.svg?color=brightgreen&label=Release)](https://github.com/TongchengOpenSource/ckibana/releases)
 
 ## Introduce
 
 CKibana: ClickHouse adapter for Kibana (ClickHouse proxy for kibana)
 
-CKibana是一个为了能够在原生kibana上直接使用ElasticSearch语法查询ClickHouse的服务。常见使用场景如:nginx日志从ElasticSearch迁移到ClickHouse后,不需要业务调整使用习惯就可以直接使用。
+CKibana是一个为了能够在原生kibana上直接使用ElasticSearch语法查询ClickHouse的服务，可作为通用Clickhouse数据可视化工具。常见使用场景如:nginx日志从ElasticSearch迁移到ClickHouse后,不需要业务调整使用习惯就可以直接使用。
 
 ## Features
 
