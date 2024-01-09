@@ -35,7 +35,7 @@ public class KibanaItemProperty {
     private long roundAbleMinPeriod;
 
     /**
-     * 过长时间周期，默认1天.
+     * 支持的时间周期.
      */
     private long maxTimeRange;
 
