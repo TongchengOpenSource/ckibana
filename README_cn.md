@@ -102,7 +102,7 @@ eg：elasticsearchHosts=http://ip:port
 
 **4）配置index pattern白名单**
 
-配置了对应的白名单，才可以在下一步创建index pattern
+配置了对应的白名单，才可以在下一步创建index pattern，可以参考[api-docs](https://github.com/TongchengOpenSource/ckibana-docs/blob/main/api-docs.md) 更新白名单索引接口
 
 **5）在kibana中创建index pattern**
 
