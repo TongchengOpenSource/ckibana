@@ -303,7 +303,7 @@ public class ParamParser {
 
     /**
      * 时间参数round.
-     * 2分钟内数据不round,inSpecialTime round 20s,默认round 10s
+     * 2分钟内数据不round, 默认round 10s
      * 返回ui
      */
     public Range getTimeRangeAfterRound(CkRequestContext ckRequestContext) {
@@ -311,7 +311,7 @@ public class ParamParser {
         KibanaItemProperty kibanaItemProperty = proxyConfigLoader.getKibanaProperty().getProxy();
         boolean isRoundAble = getTimeIntervalMillSeconds(result) > kibanaItemProperty.getRoundAbleMinPeriod();
         if (isRoundAble) {
-            int realRound = Constants.ROUND_SECOND;
+            int realRound = kibanaItemProperty.getRound() > 0 ? kibanaItemProperty.getRound() : Constants.ROUND_SECOND;
             result.setHigh(DateUtils.roundToMSecond(Math.min(System.currentTimeMillis(), (Long) result.getHigh()), realRound));
             result.setLow(DateUtils.roundToMSecond((Long) result.getLow(), realRound));
         }

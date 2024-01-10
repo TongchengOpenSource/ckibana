@@ -30,9 +30,14 @@ public class KibanaItemProperty {
     private EsProperty es;
 
     /**
-     * 超过ROUND_ABLE_MIN_PERIOD 支持round.
+     * 超过ROUND_ABLE_MIN_PERIOD 支持round，单位ms.
      */
-    private long roundAbleMinPeriod;
+    private long roundAbleMinPeriod = 120000;
+    
+    /**
+     * round值，单位s.
+     */
+    private int round;
 
     /**
      * 支持的时间周期.
