@@ -59,6 +59,8 @@ public class ParamHandler extends BaseHandler {
     
     private static final String ROUND_ABLE_MIN_PERIOD = "/config/updateRoundAbleMinPeriod";
     
+    private static final String ROUND = "/config/updateRound";
+    
     private static final String MAX_TIME_RANGE = "/config/updateMaxTimeRange";
     
     private static final String ENABLE_MONITORING = "/config/updateEnableMonitoring";
@@ -76,6 +78,7 @@ public class ParamHandler extends BaseHandler {
                 HttpRoute.newRoute().path(SAMPLE_MAX_THRESHOLD).methods(HttpMethod.POST),
                 HttpRoute.newRoute().path(USE_CACHE).methods(HttpMethod.POST),
                 HttpRoute.newRoute().path(ROUND_ABLE_MIN_PERIOD).methods(HttpMethod.POST),
+                HttpRoute.newRoute().path(ROUND).methods(HttpMethod.POST),
                 HttpRoute.newRoute().path(MAX_TIME_RANGE).methods(HttpMethod.POST),
                 HttpRoute.newRoute().path(ENABLE_MONITORING).methods(HttpMethod.POST),
                 HttpRoute.newRoute().path(MSEARCH_THREAD_POOL_CORE_SIZE).methods(HttpMethod.POST)
@@ -119,6 +122,9 @@ public class ParamHandler extends BaseHandler {
                     break;
                 case ROUND_ABLE_MIN_PERIOD:
                     kibanaProperty.getProxy().setRoundAbleMinPeriod(parseValue(params.get("roundAbleMinPeriod")));
+                    break;
+                case ROUND:
+                    kibanaProperty.getProxy().setRound(parseValue(params.get("round")).intValue());
                     break;
                 case MAX_TIME_RANGE:
                     kibanaProperty.getProxy().setMaxTimeRange(parseValue(params.get("maxTimeRange")));
