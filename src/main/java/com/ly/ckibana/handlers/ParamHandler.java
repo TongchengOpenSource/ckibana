@@ -59,6 +59,8 @@ public class ParamHandler extends BaseHandler {
     
     private static final String ROUND_ABLE_MIN_PERIOD = "/config/updateRoundAbleMinPeriod";
     
+    private static final String ROUND = "/config/updateRound";
+    
     private static final String MAX_TIME_RANGE = "/config/updateMaxTimeRange";
     
     private static final String ENABLE_MONITORING = "/config/updateEnableMonitoring";
@@ -76,6 +78,7 @@ public class ParamHandler extends BaseHandler {
                 HttpRoute.newRoute().path(SAMPLE_MAX_THRESHOLD).methods(HttpMethod.POST),
                 HttpRoute.newRoute().path(USE_CACHE).methods(HttpMethod.POST),
                 HttpRoute.newRoute().path(ROUND_ABLE_MIN_PERIOD).methods(HttpMethod.POST),
+                HttpRoute.newRoute().path(ROUND).methods(HttpMethod.POST),
                 HttpRoute.newRoute().path(MAX_TIME_RANGE).methods(HttpMethod.POST),
                 HttpRoute.newRoute().path(ENABLE_MONITORING).methods(HttpMethod.POST),
                 HttpRoute.newRoute().path(MSEARCH_THREAD_POOL_CORE_SIZE).methods(HttpMethod.POST)
@@ -92,13 +95,15 @@ public class ParamHandler extends BaseHandler {
             }
     
             KibanaProperty kibanaProperty = proxyConfigLoader.getKibanaProperty();
+            boolean updateCk = false;
+            boolean updateEs = false;
     
             switch (context.getRequestUrl()) {
                 case CK:
-                    updateCK(kibanaProperty, params);
+                    updateCk = updateCK(kibanaProperty, params);
                     break;
                 case ES:
-                    updateES(kibanaProperty, params);
+                    updateEs = updateES(kibanaProperty, params);
                     break;
                 case WHITE_INDEX_LIST:
                     kibanaProperty.getProxy().setWhiteIndexList(parseList(params));
@@ -118,6 +123,9 @@ public class ParamHandler extends BaseHandler {
                 case ROUND_ABLE_MIN_PERIOD:
                     kibanaProperty.getProxy().setRoundAbleMinPeriod(parseValue(params.get("roundAbleMinPeriod")));
                     break;
+                case ROUND:
+                    kibanaProperty.getProxy().setRound(parseValue(params.get("round")).intValue());
+                    break;
                 case MAX_TIME_RANGE:
                     kibanaProperty.getProxy().setMaxTimeRange(parseValue(params.get("maxTimeRange")));
                     break;
@@ -132,20 +140,28 @@ public class ParamHandler extends BaseHandler {
             }
     
             String body = proxyConfigLoader.getYaml().dumpAs(kibanaProperty, Tag.MAP, DumperOptions.FlowStyle.BLOCK);
-            log.info("update settings:[{}], body:{}", proxyConfigLoader.getSettingsIndexName(), body);
-            return EsClientUtil.saveOne(proxyConfigLoader.getMetadataRestClient(), proxyConfigLoader.getSettingsIndexName(),
+            String response =  EsClientUtil.saveOne(proxyConfigLoader.getMetadataRestClient(), proxyConfigLoader.getSettingsIndexName(),
                     "kibana",
                     Map.of(
                             "key", "kibana",
                             "value", body
                     ),
                     proxyConfigLoader.getMajorVersion());
+            //让定时任务自动更新，重新创建ckDatasource、restClient
+            if (updateCk) {
+                kibanaProperty.getProxy().setCk(null);
+            }
+            if (updateEs) {
+                kibanaProperty.getProxy().setEs(null);
+            }
+            log.info("update settings:[{}], body:{}, response:[{}]", proxyConfigLoader.getSettingsIndexName(), body, response);
+            return response;
         } catch (Exception e) {
             return ProxyUtils.getErrorResponse(e);
         }
     }
     
-    private void updateCK(KibanaProperty kibanaProperty, Map<String, String> params) {
+    private boolean updateCK(KibanaProperty kibanaProperty, Map<String, String> params) {
         String jsonStr = JSON.toJSONString(params);
         CkProperty ckProperty = JSON.parseObject(jsonStr, CkProperty.class);
         if (StringUtils.isBlank(ckProperty.getUrl())
@@ -155,9 +171,10 @@ public class ParamHandler extends BaseHandler {
             throw new IllegalArgumentException("invalid parameter");
         }
         kibanaProperty.getProxy().setCk(ckProperty);
+        return true;
     }
     
-    private void updateES(KibanaProperty kibanaProperty, Map<String, String> params) {
+    private boolean updateES(KibanaProperty kibanaProperty, Map<String, String> params) {
         String host = params.get("host");
         String headersString = params.get("headers");
         if (StringUtils.isBlank(host)) {
@@ -172,6 +189,7 @@ public class ParamHandler extends BaseHandler {
         
         EsProperty esProperty = new EsProperty(host, headers);
         kibanaProperty.getProxy().setEs(esProperty);
+        return true;
     }
     
     private List<String> parseList(Map<String, String> params) {
