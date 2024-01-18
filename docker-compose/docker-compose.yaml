@@ -141,6 +141,7 @@ services:
     volumes:
       - ./config/mock-filebeat.yml:/usr/share/filebeat/filebeat.yml
       - mock-nginx-logs:/var/log/nginx
+    command: ["filebeat", "-e", "--strict.perms=false"]
 
 
 volumes:
