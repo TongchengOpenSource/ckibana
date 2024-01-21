@@ -4,6 +4,10 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Release](https://img.shields.io/github/release/TongchengOpenSource/ckibana.svg?color=brightgreen&label=Release)](https://github.com/TongchengOpenSource/ckibana/releases)
 
+---
+
+- [CKibana最佳实践](https://mp.weixin.qq.com/s/T3tKYn6zE464bqTkoIa3dg)
+
 ## Introduce
 
 CKibana: ClickHouse adapter for Kibana (ClickHouse proxy for kibana)
