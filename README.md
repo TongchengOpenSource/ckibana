@@ -12,6 +12,10 @@
 
 #### English | [简体中文](README_cn.md)
 
+---
+
+- [CKibana Best Practices](https://mp.weixin.qq.com/s/T3tKYn6zE464bqTkoIa3dg)
+
 ## Introduce
 
 CKibana is a service for convenient analysis of ClickHouse data using native Kibana.
