@@ -77,16 +77,19 @@ public class RestUtils {
 
     public static RestClient initEsRestClient(String host, Map<String, String> headersMap) {
         try {
-            HttpHost[] hosts;
-            if (host.contains(":")) {
-                hosts = new HttpHost[host.split(",").length];
-                for (int i = 0; i < host.split(",").length; i++) {
-                    String[] splits = host.split(",")[i].split(":");
-                    hosts[i] = new HttpHost(splits[0], Integer.parseInt(splits[1]));
+            String[] hostSplit = host.split(",");
+            HttpHost[] hosts = new HttpHost[hostSplit.length];
+            for (int i = 0; i < hostSplit.length; i++) {
+                String each = hostSplit[i];
+                if (each.contains(HttpHost.DEFAULT_SCHEME_NAME)) {
+                    each = each.replace(HttpHost.DEFAULT_SCHEME_NAME + "://", "");
                 }
-            } else {
-                hosts = new HttpHost[1];
-                hosts[0] = new HttpHost(host);
+                if (each.contains(":")) {
+                    String[] splits = each.split(":");
+                    hosts[i] = new HttpHost(splits[0], Integer.parseInt(splits[1]));
+                }else {
+                    hosts[i] = new HttpHost(host);
+                }
             }
 
             Header[] headers = new Header[headersMap.size()];
