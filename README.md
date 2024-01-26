@@ -83,7 +83,7 @@ The proxy service depends on the **ES, CK, and Kibana services**, which need to 
 
 **1）Create a database and a table**
 
-To initialize database and table structures in ClickHouse, please refer to:[api-docs](https://github.com/TongchengOpenSource/ckibana-docs/blob/main/api-docs.md) Detailed explanation of creating a table
+To initialize database and table structures in ClickHouse, please refer to:[api-docs](https://tongchengopensource.github.io/ckibana-docs/en/api-docs) Detailed explanation of creating a table
 
 **2）Start CKibana**
 
@@ -115,7 +115,7 @@ eg：elasticsearchHosts=http://ip:port
 
 **4）Configure the index pattern whitelist**
 
-Only after configuring the corresponding whitelist can you proceed to create it in the next step `index pattern`，please refer to:[api-docs](https://github.com/TongchengOpenSource/ckibana-docs/blob/main/api-docs.md) Update the whitelist index interface
+Only after configuring the corresponding whitelist can you proceed to create it in the next step `index pattern`，please refer to:[api-docs](https://tongchengopensource.github.io/ckibana-docs/en/api-docs) Update the whitelist index interface
 
 **5）Create `index pattern` in Kibana**
 

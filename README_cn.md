@@ -75,7 +75,7 @@ java version "17.0.5"
 
 **1）建库、建表**
 
-在ck中初始化库、表结构，可以参考[api-docs](https://github.com/TongchengOpenSource/ckibana-docs/blob/main/api-docs.md) 建表详解部分
+在ck中初始化库、表结构，可以参考[api-docs](https://tongchengopensource.github.io/ckibana-docs/zh/api-docs) 建表详解部分
 
 **2）启动ckibana**
 
@@ -106,7 +106,7 @@ eg：elasticsearchHosts=http://ip:port
 
 **4）配置index pattern白名单**
 
-配置了对应的白名单，才可以在下一步创建index pattern，可以参考[api-docs](https://github.com/TongchengOpenSource/ckibana-docs/blob/main/api-docs.md) 更新白名单索引接口
+配置了对应的白名单，才可以在下一步创建index pattern，可以参考[api-docs](https://tongchengopensource.github.io/ckibana-docs/zh/api-docs) 更新白名单索引接口
 
 **5）在kibana中创建index pattern**
 
@@ -124,7 +124,7 @@ eg：如果ck表名是table_test，则创建index pattern的名字就是table_te
 - 分段查询: 支持自动拆分查询时间,可以充分利用缓存,提升查询性能
 
 ## 文档地址
-[CKibane-docs](https://github.com/TongchengOpenSource/ckibana-docs)  
+[CKibane-docs](https://tongchengopensource.github.io/ckibana-docs)  
 
 ## Contact
 
