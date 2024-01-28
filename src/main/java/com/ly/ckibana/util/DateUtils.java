@@ -29,6 +29,7 @@ import java.time.format.DateTimeParseException;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.sql.Timestamp;
 
 @Slf4j
 public class DateUtils {
@@ -167,9 +168,11 @@ public class DateUtils {
                     break;
                 }
             }
+        } else if (dateObj instanceof java.sql.Timestamp tsObj) {
+            date = new Date(tsObj.getTime());
         }
         if (date == null) {
-            throw new UnSupportedDateTypeException("未支持的时间类型");
+            throw new UnSupportedDateTypeException("未支持的时间类型" + dateObj.getClass());
         }
         return date;
     }

@@ -51,7 +51,7 @@ public class Range {
 
     /**
      * range请求包装。将不支持range的原始字段转换为支持range的ck function包装后的值,并利用比较运算符组装为最终sql.
-     * 1)时间字段：支持数值型timestamp 和DateTime64存储类型
+     * 1)时间字段：支持数值型timestamp 和DateTime, DateTime64存储类型
      * 2)ip字段：支持字符串存储类型
      * 3)普通数值字段：支持数值型存储类型
      * 具体clickhouse函数参见方法getRangeWrappedBySqlFunction()
