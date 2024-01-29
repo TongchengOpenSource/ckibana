@@ -232,11 +232,13 @@ public class ProxyUtils {
     }
 
     /**
-     * 时间查询sql转换，支持字符串（耗性能，不推荐）和数值类型,DateTime64类型.
+     * 时间查询sql转换，支持字符串（耗性能，不推荐）和数值类型,DateTime, DateTime64类型.
      */
     public static String generateTimeFieldSqlWithFormatUnixTimestamp64Milli(String ckFieldName, String ckFieldType) {
         if (isDateTime64Ms(ckFieldType)) {
             return String.format("toUnixTimestamp64Milli(%s)", getFieldSqlPart(ckFieldName));
+        } else if (isDateTime(ckFieldType)) {
+            return String.format("toUnixTimestamp(%s)*1000", getFieldSqlPart(ckFieldName));
         } else {
             return getFieldSqlPart(ckFieldName);
         }
@@ -244,7 +246,7 @@ public class ProxyUtils {
 
     /**
      * range请求包装。用于：将不支持range的原始字段转换为支持range的ck function包装后的值.
-     * 时间字段：支持数值型timestamp 和DateTime64存储类型 =>，其中DateTime64类型利用toDateTime64()语法实现range
+     * 时间字段：支持数值型timestamp 和DateTime, DateTime64存储类型
      * ip字段：支持字符串存储类型=> 利用IPv4StringToNum()语法实现range
      * 普通数值字段：支持数值型存储类型=> 无需额外转换
      *
@@ -252,12 +254,13 @@ public class ProxyUtils {
      */
     public static Range getRangeWrappedBySqlFunction(Range orgRange, boolean isTimeField) {
         String ckFieldName = orgRange.getCkFieldName();
+        String ckFieldType = orgRange.getCkFieldType();
         Range rangeConverted = new Range(ckFieldName, orgRange.getCkFieldType(), orgRange.getHigh(), orgRange.getLow());
         if (isTimeField && !isNumeric(orgRange.getCkFieldType())) {
             //时间字段且为非数值类型
-            rangeConverted.setCkFieldName(generateTimeFieldSqlWithFormatDateTime64ZoneShangHai(ckFieldName, false));
-            rangeConverted.setHigh(generateTimeFieldSqlWithFormatDateTime64ZoneShangHai(orgRange.getHigh(), true));
-            rangeConverted.setLow(generateTimeFieldSqlWithFormatDateTime64ZoneShangHai(orgRange.getLow(), true));
+            rangeConverted.setCkFieldName(ckFieldName);
+            rangeConverted.setHigh(generateTimeFieldSqlWithFormatDateTime64ZoneShangHai(orgRange.getHigh(), ckFieldType));
+            rangeConverted.setLow(generateTimeFieldSqlWithFormatDateTime64ZoneShangHai(orgRange.getLow(), ckFieldType));
         } else {
             //ip
             IPType ipType = ProxyUtils.getIpType(orgRange.getCkFieldType(), orgRange.getLow().toString());
@@ -282,15 +285,26 @@ public class ProxyUtils {
     }
 
     /**
+     * 是否为DateTime时间类型.
+     *
+     * @param ckFieldType ck字段类型
+     * @return true:是DateTime类型
+     */
+    public static boolean isDateTime(String ckFieldType) {
+        return StringUtils.startsWith(ckFieldType, SqlConstants.TYPE_DATETIME);
+    }
+
+    /**
      * 时间字段转换。作为值 or 字段.
      */
-    public static String generateTimeFieldSqlWithFormatDateTime64ZoneShangHai(Object value, boolean isValue) {
-        if (isValue) {
-            return value.toString();
+    public static String generateTimeFieldSqlWithFormatDateTime64ZoneShangHai(Object value, String ckFieldType) {
+        if (isDateTime64Ms(ckFieldType)) {
+            return String.format("toDateTime64(%s/1000.0)", value.toString());
+        } else if (isDateTime(ckFieldType)) {
+            return String.format("toDateTime(%s/1000)", value.toString());
         } else {
-            return String.format("toUnixTimestamp64Milli(%s)", getFieldSqlPart(value.toString()));
+            return value.toString();
         }
-
     }
 
     public static Object trimNull(Object body) {

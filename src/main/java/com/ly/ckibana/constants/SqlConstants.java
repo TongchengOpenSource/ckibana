@@ -98,6 +98,10 @@ public class SqlConstants {
 
     public static final String TYPE_DATETIME64 = "DateTime64";
 
+    public static final String TYPE_DATETIME = "DateTime";
+
+    public static final String TYPE_INT64 = "Int64";
+
     public static final String TYPE_FLOAT = "Float";
 
     public static final String TYPE_DECIMAL = "Decimal";
