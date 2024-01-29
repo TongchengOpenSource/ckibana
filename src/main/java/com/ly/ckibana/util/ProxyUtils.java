@@ -279,7 +279,7 @@ public class ProxyUtils {
      */
     public static String generateTimeFieldSqlWithFormatDateTime64ZoneShangHai(Object value, String ckFieldType) {
         if (SqlUtils.isDateTime64(ckFieldType)) {
-            return String.format("toDateTime64(%s/1000,%d)", value.toString(),SqlUtils.getDateTime64Scale(ckFieldType));
+            return String.format("toDateTime64(%s/1000,%d)", value.toString(), SqlUtils.getDateTime64Scale(ckFieldType));
         } else if (SqlUtils.isDateTime(ckFieldType)) {
             return String.format("toDateTime(%s/1000)", value.toString());
         } else {
