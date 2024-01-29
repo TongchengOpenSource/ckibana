@@ -145,7 +145,6 @@ public class RestUtils {
     }
 
     public static class EsHttpConfigCallback implements RestClientBuilder.HttpClientConfigCallback {
-
         @Override
         public HttpAsyncClientBuilder customizeHttpClient(HttpAsyncClientBuilder httpClientBuilder) {
             RequestConfig requestConfig = RequestConfig.copy(RequestConfig.DEFAULT)

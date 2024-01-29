@@ -406,4 +406,37 @@ public class SqlUtils {
     public static String getSelectTemplate(String selectSql, String table) {
         return String.format("SELECT %s FROM %s", selectSql, table);
     }
+
+    /**
+     * 是否为DateTime64时间类型.
+     *
+     * @param ckFieldType ck字段类型
+     * @return true:是DateTime64类型
+     */
+    public static boolean isDateTime64(String ckFieldType) {
+        return StringUtils.startsWith(ckFieldType, SqlConstants.TYPE_DATETIME64);
+    }
+
+    /**
+     * DateTime64时间类型，提取精度.
+     *
+     * @param ckFieldType ck字段类型,如DateTime64(3)
+     * @return 精度,如3
+     */
+    public static int getDateTime64Scale(String ckFieldType) {
+        String scale = ckFieldType.replace(SqlConstants.TYPE_DATETIME64, StringUtils.EMPTY)
+                .replace(Constants.Symbol.LEFT_PARENTHESIS, StringUtils.EMPTY)
+                .replace(Constants.Symbol.RIGHT_PARENTHESIS, StringUtils.EMPTY);
+        return Integer.parseInt(scale);
+    }
+    /**
+     * 是否为DateTime时间类型.
+     *
+     * @param ckFieldType ck字段类型
+     * @return true:是DateTime类型
+     */
+    public static boolean isDateTime(String ckFieldType) {
+        return StringUtils.startsWith(ckFieldType, SqlConstants.TYPE_DATETIME);
+    }
+
 }

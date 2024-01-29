@@ -67,7 +67,7 @@ public class DateHistogramAggregation extends Aggregation {
         FieldSqlConverter fieldAggregation = new FieldSqlConverter();
         fieldAggregation.setCondition(
                 SqlUtils.getFunctionString(SqlConstants.TO_INT64, "(%s) / %d",
-                        ProxyUtils.generateTimeFieldSqlWithFormatUnixTimestamp64Milli(getField(), timeRange.getCkFieldType()),
+                        ProxyUtils.generateTimeFieldSqlWithFormatUnixTimestamp64(getField(), timeRange.getCkFieldType()),
                         getInterval())
         );
         fieldAggregation.setName(queryFieldName());
