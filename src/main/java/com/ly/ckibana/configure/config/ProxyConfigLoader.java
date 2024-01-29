@@ -169,6 +169,9 @@ public class ProxyConfigLoader {
         } catch (IndexNotFoundException e) {
             EsClientUtil.createIndex(metadataRestClient, getSettingsIndexName(), Constants.ConfigFile.SETTINGS_PROPERTIES, kibanaProperty.getDefaultShard(), majorVersion);
             initConfig();
+        } catch (Exception e) {
+            log.error("init config from es error. hosts:{}, headers:{}, searchResult:{}", metadataConfigProperty.getHosts(), metadataConfigProperty.getHeaders(), searchResult, e);
+            throw e;
         }
     }
 
