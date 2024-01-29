@@ -136,11 +136,16 @@ public class EsClientUtil {
     }
 
     public static String getClusterInfo(RestClient restClient) {
-        String response = null;
+        String response;
         try {
             response = doRequest(restClient, HttpMethod.GET.name(), "/", BASE_HEADER, null, "");
         } catch (Exception e) {
-            log.error("get cluster info error", e);
+            log.error("Failed to get cluster information. path : /", e);
+            throw new InvalidClusterInfoException("failed to get cluster information.");
+        }
+        if (response.contains("error")) {
+            log.error("Failed to get cluster information. path : /, response: {}", response);
+            throw new InvalidClusterInfoException("failed to get cluster information.");
         }
         return response;
     }
@@ -218,15 +223,19 @@ public class EsClientUtil {
 
     public static Integer getMajorVersion(String clusterInfo) {
         if (clusterInfo == null) {
-            throw new InvalidClusterInfoException("cluster info error.");
+            throw new InvalidClusterInfoException("cluster info is null");
         }
         try {
             JSONObject jsonObject = JSONObject.parseObject(clusterInfo);
             JSONObject versionObj = jsonObject.getJSONObject("version");
+            if (versionObj == null) {
+                log.error("parse es response error. version is null. response: {}", clusterInfo);
+                throw new InvalidClusterInfoException("parse es response error. version is null");
+            }
             return Integer.parseInt(versionObj.getString("number").split("\\.")[0]);
         } catch (Exception e) {
-            log.error("parse cluster info error. response: {}", clusterInfo, e);
-            throw new InvalidClusterInfoException("parse cluster info error.");
+            log.error("parse es response error. response: {}", clusterInfo, e);
+            throw new InvalidClusterInfoException("parse es response error.");
         }
     }
 
@@ -250,7 +259,7 @@ public class EsClientUtil {
             endBuilder.append("}");
         }
         builder.append("\"dynamic\": false,"
-                        + "\"date_detection\": false,")
+                       + "\"date_detection\": false,")
                 .append(properties);
 
         builder.append("}").append(endBuilder);
@@ -297,9 +306,9 @@ public class EsClientUtil {
             curIndexFormat = Constants.IndexBuilder.BULK_INDEX_NO_TYPE_HEADER;
         }
         String bulkBody = String.format(curIndexFormat, indexName, id)
-                + "\n"
-                + JSON.toJSONString(map)
-                + "\n";
+                          + "\n"
+                          + JSON.toJSONString(map)
+                          + "\n";
         // save
         String response = bulk(restClient, bulkBody);
         if (StringUtils.isEmpty(response) || response.contains("\"errors\":true") || response.contains("\"error\":")) {
@@ -343,7 +352,7 @@ public class EsClientUtil {
         Map<String, String> result = new HashMap<>();
         try {
             String query = "{\"size\":10000,\"seq_no_primary_term\":true,\"query\":{\"bool\":{\"filter\":[{\"bool\":{\"should\":"
-                    + "[{\"bool\":{\"must\":[{\"term\":{\"type\":\"index-pattern\"}}],\"must_not\":[{\"exists\":{\"field\":\"namespace\"}}]}}],\"minimum_should_match\":1}}]}}}";
+                           + "[{\"bool\":{\"must\":[{\"term\":{\"type\":\"index-pattern\"}}],\"must_not\":[{\"exists\":{\"field\":\"namespace\"}}]}}],\"minimum_should_match\":1}}]}}}";
             String responseBody = doRequest(restClient,
                     HttpMethod.POST.name(), "/" + Constants.KIBANA_META_INDEX + "/_search",
                     BASE_HEADER, null, query);

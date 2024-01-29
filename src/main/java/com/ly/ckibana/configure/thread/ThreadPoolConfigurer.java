@@ -82,7 +82,13 @@ public class ThreadPoolConfigurer implements Closeable {
         log.info("[thread_pool][common] init successful. {}", msearchConfig);
 
         // init kibana proxy config scheduled task
-        commonScheduledExecutor.scheduleAtFixedRate(() -> proxyConfigLoader.refreshConfig(), 10, 10, TimeUnit.SECONDS);
+        commonScheduledExecutor.scheduleAtFixedRate(() -> {
+            try {
+                proxyConfigLoader.refreshConfig();
+            } catch (Exception e) {
+                log.warn("refresh config error", e);
+            }
+        }, 10, 10, TimeUnit.SECONDS);
         log.info("[task][refresh config] init successful. {}", msearchConfig);
 
         commonExecutor.submit(() -> sqlMonitorService.asyncRecordMonitoring());
