@@ -407,7 +407,6 @@ public class SqlUtils {
         return String.format("SELECT %s FROM %s", selectSql, table);
     }
 
-
     /**
      * 是否为DateTime64时间类型.
      *
@@ -418,17 +417,16 @@ public class SqlUtils {
         return StringUtils.startsWith(ckFieldType, SqlConstants.TYPE_DATETIME64);
     }
 
-
     /**
-     * DateTime64时间类型，提取精度
+     * DateTime64时间类型，提取精度.
      *
      * @param ckFieldType ck字段类型,如DateTime64(3)
      * @return 精度,如3
      */
     public static int getDateTime64Scale(String ckFieldType) {
-        String scale= ckFieldType.replace(SqlConstants.TYPE_DATETIME64,StringUtils.EMPTY)
-                .replace(Constants.Symbol.LEFT_PARENTHESIS,StringUtils.EMPTY)
-                .replace(Constants.Symbol.RIGHT_PARENTHESIS,StringUtils.EMPTY);
+        String scale = ckFieldType.replace(SqlConstants.TYPE_DATETIME64, StringUtils.EMPTY)
+                .replace(Constants.Symbol.LEFT_PARENTHESIS, StringUtils.EMPTY)
+                .replace(Constants.Symbol.RIGHT_PARENTHESIS, StringUtils.EMPTY);
         return Integer.parseInt(scale);
     }
     /**

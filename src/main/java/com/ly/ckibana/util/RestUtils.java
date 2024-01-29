@@ -87,7 +87,7 @@ public class RestUtils {
                 if (each.contains(":")) {
                     String[] splits = each.split(":");
                     hosts[i] = new HttpHost(splits[0], Integer.parseInt(splits[1]));
-                }else {
+                } else {
                     hosts[i] = new HttpHost(host);
                 }
             }

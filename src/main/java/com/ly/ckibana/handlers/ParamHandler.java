@@ -140,7 +140,7 @@ public class ParamHandler extends BaseHandler {
             }
     
             String body = proxyConfigLoader.getYaml().dumpAs(kibanaProperty, Tag.MAP, DumperOptions.FlowStyle.BLOCK);
-            String response =  EsClientUtil.saveOne(proxyConfigLoader.getMetadataRestClient(), proxyConfigLoader.getSettingsIndexName(),
+            String response = EsClientUtil.saveOne(proxyConfigLoader.getMetadataRestClient(), proxyConfigLoader.getSettingsIndexName(),
                     "kibana",
                     Map.of(
                             "key", "kibana",
