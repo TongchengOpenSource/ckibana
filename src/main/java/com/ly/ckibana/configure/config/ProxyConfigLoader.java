@@ -97,6 +97,7 @@ public class ProxyConfigLoader {
         metadataRestClient = requestContext.getProxyConfig().getRestClient();
 
         refreshConfig();
+
         // 初始化proxy-settings 索引
         boolean initSettingsIndex = EsClientUtil.createIndex(metadataRestClient, getSettingsIndexName(),
                 Constants.ConfigFile.SETTINGS_PROPERTIES, Constants.ConfigFile.SETTINGS_INDEX_SHARDS, majorVersion);
@@ -168,8 +169,6 @@ public class ProxyConfigLoader {
         } catch (IndexNotFoundException e) {
             EsClientUtil.createIndex(metadataRestClient, getSettingsIndexName(), Constants.ConfigFile.SETTINGS_PROPERTIES, kibanaProperty.getDefaultShard(), majorVersion);
             initConfig();
-        } catch (Exception e) {
-            log.error("init config from es error. hosts:{}, headers:{}, searchResult:{}", metadataConfigProperty.getHosts(), metadataConfigProperty.getHeaders(), searchResult, e);
         }
     }
 
@@ -211,6 +210,6 @@ public class ProxyConfigLoader {
 
     public String getSettingsIndexName() {
         return Constants.ConfigFile.SETTINGS_INDEX_NAME
-                + (StringUtils.isBlank(metadataConfigProperty.getSettingsSuffix()) ? Strings.EMPTY : String.format("-%s", metadataConfigProperty.getSettingsSuffix()));
+               + (StringUtils.isBlank(metadataConfigProperty.getSettingsSuffix()) ? Strings.EMPTY : String.format("-%s", metadataConfigProperty.getSettingsSuffix()));
     }
 }
