@@ -291,7 +291,7 @@ public class HitsResultParser {
      */
     private CkRequest getByMinuteRequest(SortType sortType, CkRequestContext ckRequestContext, Range orgTimeClause) {
         CkRequest byMinuteRequest = ProxyUtils.buildRequest(ckRequestContext.getTableName(), SqlConstants.COUNT_QUERY);
-        String timeField = ProxyUtils.generateTimeFieldSqlWithFormatUnixTimestamp64Milli(ckRequestContext.getIndexPattern().getTimeField(), orgTimeClause.getCkFieldType());
+        String timeField = ProxyUtils.generateTimeFieldSqlWithFormatUnixTimestamp64(ckRequestContext.getIndexPattern().getTimeField(), orgTimeClause.getCkFieldType());
         byMinuteRequest.appendSelect(String.format(SqlConstants.TIME_AGG_BY_MINUTE_TEMPLATE, timeField, SqlConstants.CK_MINUTE_NAME));
         byMinuteRequest.initGroupBy(SqlConstants.CK_MINUTE_NAME);
         byMinuteRequest.orderBy(SqlConstants.CK_MINUTE_NAME + " " + sortType.name());

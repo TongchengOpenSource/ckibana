@@ -234,10 +234,10 @@ public class ProxyUtils {
     /**
      * 时间查询sql转换，支持字符串（耗性能，不推荐）和数值类型,DateTime, DateTime64类型.
      */
-    public static String generateTimeFieldSqlWithFormatUnixTimestamp64Milli(String ckFieldName, String ckFieldType) {
-        if (isDateTime64Ms(ckFieldType)) {
+    public static String generateTimeFieldSqlWithFormatUnixTimestamp64(String ckFieldName, String ckFieldType) {
+        if (SqlUtils.isDateTime64(ckFieldType)) {
             return String.format("toUnixTimestamp64Milli(%s)", getFieldSqlPart(ckFieldName));
-        } else if (isDateTime(ckFieldType)) {
+        } else if (SqlUtils.isDateTime(ckFieldType)) {
             return String.format("toUnixTimestamp(%s)*1000", getFieldSqlPart(ckFieldName));
         } else {
             return getFieldSqlPart(ckFieldName);
@@ -275,32 +275,12 @@ public class ProxyUtils {
     }
 
     /**
-     * 是否为DateTime64时间类型.
-     *
-     * @param ckFieldType ck字段类型
-     * @return true:是DateTime64类型
-     */
-    public static boolean isDateTime64Ms(String ckFieldType) {
-        return StringUtils.startsWith(ckFieldType, SqlConstants.TYPE_DATETIME64);
-    }
-
-    /**
-     * 是否为DateTime时间类型.
-     *
-     * @param ckFieldType ck字段类型
-     * @return true:是DateTime类型
-     */
-    public static boolean isDateTime(String ckFieldType) {
-        return StringUtils.startsWith(ckFieldType, SqlConstants.TYPE_DATETIME);
-    }
-
-    /**
      * 时间字段转换。作为值 or 字段.
      */
     public static String generateTimeFieldSqlWithFormatDateTime64ZoneShangHai(Object value, String ckFieldType) {
-        if (isDateTime64Ms(ckFieldType)) {
-            return String.format("toDateTime64(%s/1000.0)", value.toString());
-        } else if (isDateTime(ckFieldType)) {
+        if (SqlUtils.isDateTime64(ckFieldType)) {
+            return String.format("toDateTime64(%s/1000,%d)", value.toString(),SqlUtils.getDateTime64Scale(ckFieldType));
+        } else if (SqlUtils.isDateTime(ckFieldType)) {
             return String.format("toDateTime(%s/1000)", value.toString());
         } else {
             return value.toString();
