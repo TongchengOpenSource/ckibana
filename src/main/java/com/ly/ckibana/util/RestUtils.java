@@ -15,6 +15,7 @@
  */
 package com.ly.ckibana.util;
 
+import com.ly.ckibana.constants.SecurityProtocolEnum;
 import com.ly.ckibana.model.property.EsProperty;
 import com.ly.ckibana.model.request.ProxyConfig;
 import com.ly.ckibana.model.request.RequestContext;
@@ -22,6 +23,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.http.Header;
 import org.apache.http.HttpHost;
 import org.apache.http.client.config.RequestConfig;
+import org.apache.http.conn.ssl.NoopHostnameVerifier;
 import org.apache.http.impl.nio.client.HttpAsyncClientBuilder;
 import org.apache.http.message.BasicHeader;
 import org.elasticsearch.client.RestClient;
@@ -29,7 +31,13 @@ import org.elasticsearch.client.RestClientBuilder;
 import org.springframework.http.HttpMethod;
 import org.springframework.util.CollectionUtils;
 
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
 import javax.servlet.http.HttpServletRequest;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.X509Certificate;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -81,17 +89,22 @@ public class RestUtils {
             HttpHost[] hosts = new HttpHost[hostSplit.length];
             for (int i = 0; i < hostSplit.length; i++) {
                 String each = hostSplit[i];
-                if (each.contains(HttpHost.DEFAULT_SCHEME_NAME)) {
-                    each = each.replace(HttpHost.DEFAULT_SCHEME_NAME + "://", "");
+                String scheme = HttpHost.DEFAULT_SCHEME_NAME;
+                if (each.matches("^[^:]+://.*")) {
+                    int endIndex = each.indexOf("://");
+                    scheme = each.substring(0, endIndex);
+                    each = each.substring(endIndex + 3);
                 }
+
                 if (each.contains(":")) {
                     String[] splits = each.split(":");
-                    hosts[i] = new HttpHost(splits[0], Integer.parseInt(splits[1]));
+                    hosts[i] = new HttpHost(splits[0], Integer.parseInt(splits[1]), scheme);
                 } else {
-                    hosts[i] = new HttpHost(host);
+                    int port = SecurityProtocolEnum.HTTPS.getScheme().equals(scheme) ? SecurityProtocolEnum.HTTPS.getPort() : SecurityProtocolEnum.HTTP.getPort();
+                    hosts[i] = new HttpHost(each, port, scheme);
                 }
             }
-
+            headersMap = headersMap == null ? new HashMap<>(0) : headersMap;
             Header[] headers = new Header[headersMap.size()];
             int i = 0;
             for (Map.Entry<String, String> header : headersMap.entrySet()) {
@@ -108,7 +121,7 @@ public class RestUtils {
             throw ex;
         }
     }
-    
+
     public static RequestContext createRequestContext(String urls, Map<String, String> headers) {
         RequestContext requestContext = new RequestContext();
         ProxyConfig proxyConfig = new ProxyConfig();
@@ -139,7 +152,44 @@ public class RestUtils {
                     .setSocketTimeout(120 * 1000)
                     .build();
             httpClientBuilder.setDefaultRequestConfig(requestConfig);
+            try {
+                httpClientBuilder.setSSLContext(getSSLContext());
+                httpClientBuilder.setSSLHostnameVerifier(NoopHostnameVerifier.INSTANCE);
+            } catch (Exception e) {
+                log.error("SSL load error. Please check the ca file", e);
+            }
             return httpClientBuilder;
         }
     }
+
+    /**
+     * 配置 SSL 上下文
+     */
+    public static SSLContext sslContext = null;
+
+    public static SSLContext getSSLContext() throws NoSuchAlgorithmException, KeyManagementException {
+        if (sslContext != null) {
+            return sslContext;
+        }
+        synchronized (RestUtils.class) {
+            TrustManager[] trustManagers = new TrustManager[]{new X509TrustManager() {
+                @Override
+                public void checkClientTrusted(X509Certificate[] chain, String authType) {
+                }
+
+                @Override
+                public void checkServerTrusted(X509Certificate[] chain, String authType) {
+                }
+
+                @Override
+                public X509Certificate[] getAcceptedIssuers() {
+                    return new X509Certificate[0];
+                }
+            }};
+            sslContext = SSLContext.getInstance("TLS");
+            sslContext.init(null, trustManagers, null);
+            return sslContext;
+        }
+    }
+
 }
