@@ -148,8 +148,11 @@ public class ProxyConfigLoader {
             JSONObject hitObj = searchResultObj.getJSONObject("hits");
             JSONArray hitsDataObjArray = hitObj.getJSONArray("hits");
             if (hitsDataObjArray.isEmpty()) {
-                initConfig();
-                log.warn("no config in {}. set to default configuration. [\n{}\n]", getSettingsIndexName(), JSON.toJSONString(proxyConfig));
+                if (StringUtils.isNotBlank(kibanaPropertyOriginalString) || kibanaPropertyOriginalString == null) {
+                    log.warn("no config in {}. set to default configuration. [\n{}\n]", getSettingsIndexName(), JSON.toJSONString(proxyConfig));
+                    initConfig();
+                }
+                kibanaPropertyOriginalString = "";
                 return;
             }
             JSONObject data = (JSONObject) hitsDataObjArray.get(0);

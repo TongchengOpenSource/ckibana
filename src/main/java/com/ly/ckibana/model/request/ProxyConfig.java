@@ -65,7 +65,7 @@ public class ProxyConfig {
 
     public String getCkDatabase() {
         if (kibanaItemProperty.getCk() == null) {
-            throw new DataSourceEmptyException("clickhouse数据源为空，请检查配置proxy.ck");
+            return null;
         }
         return kibanaItemProperty.getCk().getDefaultCkDatabase();
     }
@@ -133,6 +133,9 @@ public class ProxyConfig {
     public IndexPattern buildIndexPattern(String uiIndex, String index) {
         IndexPattern indexPattern = new IndexPattern();
         String database = getCkDatabase();
+        if (database == null) {
+            throw new DataSourceEmptyException("clickhouse数据源为空，请检查配置proxy.ck");
+        }
         indexPattern.setUiIndex(uiIndex);
         indexPattern.setIndex(index);
         indexPattern.setDatabase(database);
