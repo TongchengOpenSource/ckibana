@@ -387,5 +387,7 @@ public class EsClientUtil {
                 httpServletResponse.setHeader(esResponseHeader.getName(), esResponseHeader.getValue());
             }
         }
+        // 设置code码
+        httpServletResponse.setStatus(esResponse.getStatusLine().getStatusCode());
     };
 }
