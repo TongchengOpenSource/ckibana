@@ -154,7 +154,11 @@ public class CkService {
     }
 
     private List<String> queryTablesWithCondition(ProxyConfig proxyConfig, String tableCondition) throws Exception {
-        String sql = String.format("SELECT name FROM system.tables WHERE database = '%s' ", proxyConfig.getCkDatabase());
+        String ckDatabase = proxyConfig.getCkDatabase();
+        if (ckDatabase == null) {
+            throw new DataSourceEmptyException("clickhouse数据源为空，请检查配置proxy.ck");
+        }
+        String sql = String.format("SELECT name FROM system.tables WHERE database = '%s' ", ckDatabase);
         if (StringUtils.isNotEmpty(tableCondition)) {
             sql = String.format("%s AND %s ", sql, tableCondition);
         }
