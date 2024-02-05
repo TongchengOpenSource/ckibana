@@ -36,17 +36,6 @@ public class BaseHandlerAdapter implements HandlerAdapter {
     @Override
     public ModelAndView handle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         try {
-            String ipAddress = request.getHeader("X-Forwarded-For");
-            if (ipAddress == null || ipAddress.length() == 0 || "unknown".equalsIgnoreCase(ipAddress)) {
-                ipAddress = request.getHeader("Proxy-Client-IP");
-            }
-            if (ipAddress == null || ipAddress.length() == 0 || "unknown".equalsIgnoreCase(ipAddress)) {
-                ipAddress = request.getHeader("WL-Proxy-Client-IP");
-            }
-            if (ipAddress == null || ipAddress.length() == 0 || "unknown".equalsIgnoreCase(ipAddress)) {
-                ipAddress = request.getRemoteAddr();
-            }
-            log.warn("[{}] uri: {}", request.getMethod(), request.getRequestURI());
             ((BaseHandler) handler).handle(request, response);
         } catch (Exception e) {
             log.error(e.getMessage(), e);
