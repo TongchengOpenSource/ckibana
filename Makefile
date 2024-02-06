@@ -1,7 +1,7 @@
 JAVAC := javac
 JAVA_VERSION := 17
 
-repo ?= hub.17usoft.com/lhhdz/es2ck
+repo ?= docker.io/ting001/ckibana
 tag ?= latest
 platform ?= linux/arm64
 env ?= test
@@ -24,9 +24,9 @@ image-build:
 	@rm -rf tmp
 	@docker rmi "$(repo):$(tag)" --force
 	mkdir tmp && \
-		cp build/Dockerfile tmp && \
+		cp Dockerfile tmp && \
 		cp target/*.jar tmp && cd tmp && \
-		docker build --platform $(platform) --build-arg env=$(env) -f Dockerfile -t "$(repo):$(tag)" .
+		docker build  --build-arg env=$(env) -f Dockerfile -t "$(repo):$(tag)" .
 	@rm -rf tmp
 
 image-run: image-build
