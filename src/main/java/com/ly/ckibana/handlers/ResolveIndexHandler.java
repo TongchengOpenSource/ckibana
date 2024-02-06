@@ -16,6 +16,8 @@
 package com.ly.ckibana.handlers;
 
 import com.alibaba.fastjson2.JSON;
+import com.alibaba.fastjson2.JSONArray;
+import com.alibaba.fastjson2.JSONObject;
 import com.ly.ckibana.configure.web.route.HttpRoute;
 import com.ly.ckibana.model.request.RequestContext;
 import com.ly.ckibana.service.CkService;
@@ -23,6 +25,7 @@ import com.ly.ckibana.service.EsClientUtil;
 import com.ly.ckibana.util.JSONUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
@@ -47,10 +50,15 @@ public class ResolveIndexHandler extends BaseHandler {
     protected String doHandle(RequestContext context) throws Exception {
         List<Map<String, Object>> ckIndices = new ArrayList<>(resolveCkIndices(context));
         String esResponseBody = EsClientUtil.doRequest(context);
-        JSON.parseObject(esResponseBody).getJSONArray("indices").forEach(each -> {
-            //noinspection unchecked
-            ckIndices.add(JSON.parseObject(each.toString(), Map.class));
-        });
+        JSONObject jsonObject = JSON.parseObject(esResponseBody);
+        JSONArray indexArray;
+        if (jsonObject != null && (indexArray = jsonObject.getJSONArray("indices")) != null) {
+            for (Object each : indexArray) {
+                //noinspection unchecked
+                ckIndices.add(JSON.parseObject(each.toString(), Map.class));
+            }
+        }
+        context.getHttpResponse().setStatus(HttpStatus.OK.value());
         return JSONUtils.serialize(Map.of("indices", ckIndices));
     }
 
