@@ -106,7 +106,7 @@ eg：elasticsearchHosts=http://ip:port
 
 **4）配置index pattern白名单**
 
-配置了对应的白名单，才可以在下一步创建index pattern，可以参考[api-docs](https://tongchengopensource.github.io/ckibana-docs/zh/api-docs) 更新白名单索引接口
+配置了对应的白名单，才可以在下一步创建index pattern，**配置的白名单需要跟表名一致**，可以参考[api-docs](https://tongchengopensource.github.io/ckibana-docs/zh/api-docs) 更新白名单索引接口
 
 **5）在kibana中创建index pattern**
 

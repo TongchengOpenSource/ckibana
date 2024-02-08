@@ -115,7 +115,7 @@ eg：elasticsearchHosts=http://ip:port
 
 **4）Configure the index pattern whitelist**
 
-Only after configuring the corresponding whitelist can you proceed to create it in the next step `index pattern`，please refer to:[api-docs](https://tongchengopensource.github.io/ckibana-docs/en/api-docs) Update the whitelist index interface
+Only after configuring the corresponding whitelist can you proceed to create it in the next step `index pattern`，**The configured whitelist needs to be consistent with the table name**，please refer to:[api-docs](https://tongchengopensource.github.io/ckibana-docs/en/api-docs) Update the whitelist index interface
 
 **5）Create `index pattern` in Kibana**
 
