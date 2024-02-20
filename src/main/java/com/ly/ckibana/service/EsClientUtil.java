@@ -354,7 +354,7 @@ public class EsClientUtil {
             String query = "{\"size\":10000,\"seq_no_primary_term\":true,\"query\":{\"bool\":{\"filter\":[{\"bool\":{\"should\":"
                            + "[{\"bool\":{\"must\":[{\"term\":{\"type\":\"index-pattern\"}}],\"must_not\":[{\"exists\":{\"field\":\"namespace\"}}]}}],\"minimum_should_match\":1}}]}}}";
             String responseBody = doRequest(restClient,
-                    HttpMethod.POST.name(), "/" + Constants.KIBANA_META_INDEX + "/_search",
+                    HttpMethod.POST.name(), "/" + Constants.KIBANA_META_INDEX + "/_search?ignore_unavailable=true",
                     BASE_HEADER, null, query);
             JSONObject responseObj = JSONObject.parse(responseBody);
             if (responseObj.containsKey(Constants.HIT) && responseObj.getJSONObject(Constants.HIT).containsKey(Constants.HIT)) {

@@ -37,7 +37,7 @@ public class Constants {
     public static final List<String> EXTENDED_DATETIME_FORMAT_LIST = List.of(DATE_FORMAT_DEFAULT, DATETIME_FORMAT_DEFAULT,
             DATETIME_FORMAT_YYYY_MM_DD_HH_MM_SS_SSS, DATETIME_FORMAT_GMT, DATETIME_FORMAT_GMT_PLUS_EIGHT_HOUR);
 
-    public static final String KIBANA_META_INDEX = ".kibana";
+    public static final String KIBANA_META_INDEX = ".kibana,.kibana_analytics_*";
 
     public static final String X_REQUEST_ID = "x-request-id";
 
