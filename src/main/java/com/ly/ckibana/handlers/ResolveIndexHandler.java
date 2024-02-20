@@ -49,6 +49,7 @@ public class ResolveIndexHandler extends BaseHandler {
     @Override
     protected String doHandle(RequestContext context) throws Exception {
         List<Map<String, Object>> ckIndices = new ArrayList<>(resolveCkIndices(context));
+        int ckIndicesSize = ckIndices.size();
         String esResponseBody = EsClientUtil.doRequest(context);
         JSONObject jsonObject = JSON.parseObject(esResponseBody);
         JSONArray indexArray;
@@ -58,6 +59,8 @@ public class ResolveIndexHandler extends BaseHandler {
                 ckIndices.add(JSON.parseObject(each.toString(), Map.class));
             }
         }
+        int esIndicesSize = ckIndices.size() - ckIndicesSize;
+        log.info("[resolve][{}] match es indices size: {}, ck indices size: {}", context.getIndex(), esIndicesSize, ckIndicesSize);
         context.getHttpResponse().setStatus(HttpStatus.OK.value());
         return JSONUtils.serialize(Map.of("indices", ckIndices));
     }
