@@ -78,6 +78,7 @@ public class AsyncSearchHandler extends BaseHandler {
         Map<String, Map<String, String>> tableColumnsCache = new HashMap<>();
         String timeField = EsClientUtil.getIndexPatternMeta(context.getProxyConfig().getRestClient()).get(index);
         if (timeField == null) {
+            log.warn("please set the date field of this index. [{}]", index);
             return JSONUtils.serialize(ProxyUtils.newKibanaException("请设置该索引的date字段"));
         }
         QueryProperty queryProperty = proxyConfigLoader.getKibanaProperty().getQuery();
