@@ -14,6 +14,8 @@ CKibana: ClickHouse adapter for Kibana (ClickHouse proxy for kibana)
 
 CKibana是一个为了能够在原生kibana上直接使用ElasticSearch语法查询ClickHouse的服务，可作为通用Clickhouse数据可视化工具。常见使用场景如:nginx日志从ElasticSearch迁移到ClickHouse后,不需要业务调整使用习惯就可以直接使用。
 
+推荐使用6.x的kibana版本,内部都是使用的该版本,测试的会更充分一点。
+
 ## Features
 
 - 版本支持: 兼容ElasticSearch跟kibana 6.x、7.x、8.x 版本
