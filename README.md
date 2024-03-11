@@ -22,6 +22,8 @@ CKibana is a service for convenient analysis of ClickHouse data using native Kib
 
 A typical use case is when nginx log storage is migrated from ElasticSearch to ClickHouse,users can seamlessly continue their log query and analysis with Kibana.
 
+It is recommended to use version 6.x of Kibana. This version is used internally and has been more thoroughly tested.
+
 ## Features
 
 - Version Support: Compatible with ElasticSearch and Kibana versions 6.x, 7.x, and 8.x.
