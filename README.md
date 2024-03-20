@@ -134,6 +134,10 @@ After completing the above 5 steps, you can create a dashboard and start using i
 ## Documentation
 [CKibane-docs](https://tongchengopensource.github.io/ckibana-docs)  
 
+## Contributors
+
+<a href="https://github.com/TongchengOpenSource/ckibana/graphs/contributors"><img src="https://opencollective.com/ckibana/contributors.svg?width=890" /></a>
+
 ## Join us
 The group supports both Enterprise WeChat and personal WeChat accounts
 ![](http://oss.17usoft.com/infra-github/ckibana/join-us.png)
