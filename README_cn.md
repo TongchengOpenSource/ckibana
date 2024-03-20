@@ -119,14 +119,16 @@ eg：如果ck表名是table_test，则创建index pattern的名字就是table_te
 
 以上5步都操作完以后，就可以创建大盘，开始进行使用了
 
-
-
 ## TODO
 
 - 分段查询: 支持自动拆分查询时间,可以充分利用缓存,提升查询性能
 
 ## 文档地址
 [CKibane-docs](https://tongchengopensource.github.io/ckibana-docs)  
+
+## 贡献者
+
+<a href="https://github.com/TongchengOpenSource/ckibana/graphs/contributors"><img src="https://opencollective.com/ckibana/contributors.svg?width=890" /></a>
 
 ## Contact
 
