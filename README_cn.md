@@ -18,7 +18,7 @@ CKibana是一个为了能够在原生kibana上直接使用ElasticSearch语法查
 
 ## Features
 
-- 版本支持: 兼容ElasticSearch跟kibana 6.x、7.x、8.x 版本
+- 版本支持: 兼容ElasticSearch跟kibana 6.x、7.x 版本
 - 语法支持: 兼容ElasticSearch常用语法(注: ip_range跟date_range仅可在搜索框中使用querystring语法查询)
 - 采样功能: 对于命中结果超过阈值的查询,支持动态计算采样+还原结果,提高查询性能且保障图表趋势基本跟真实数据趋势一致(限流阈值越大跟真实图表趋势越接近)。
 - 缓存功能: 支持使用ElasticSearch来做结果缓存,来提升重复查询的性能
