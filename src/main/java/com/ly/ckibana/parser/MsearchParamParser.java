@@ -24,6 +24,7 @@ import com.ly.ckibana.constants.SqlConstants;
 import com.ly.ckibana.model.compute.indexpattern.IndexPattern;
 import com.ly.ckibana.model.enums.SortType;
 import com.ly.ckibana.model.exception.TimeNotInRangeException;
+import com.ly.ckibana.model.exception.UiException;
 import com.ly.ckibana.model.exception.UnKnowTimeFieldException;
 import com.ly.ckibana.model.property.KibanaItemProperty;
 import com.ly.ckibana.model.property.QueryProperty;
@@ -42,6 +43,7 @@ import com.ly.ckibana.util.ParamConvertUtils;
 import com.ly.ckibana.util.ProxyUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -72,7 +74,7 @@ public class MsearchParamParser extends ParamParser {
     public void checkTimeInRange(CkRequestContext ckRequestContext) {
         if (!isTimeInRange(ckRequestContext)) {
             throw new TimeNotInRangeException("查询时间跨度太大,目前支持最大查询区间为:"
-                                              + DateUtils.formatDurationWords(proxyConfigLoader.getKibanaProperty().getProxy().getMaxTimeRange()));
+                    + DateUtils.formatDurationWords(proxyConfigLoader.getKibanaProperty().getProxy().getMaxTimeRange()));
         }
     }
 
@@ -234,9 +236,11 @@ public class MsearchParamParser extends ParamParser {
                 // 将查询任务放入线程队列
                 MsearchQueryTask msearchQueryTask = new MsearchQueryTask(ckRequestContext, aggResultParser, searchQuery);
                 subCkRequests.add(msearchQueryTask);
+            } catch (UiException uiException) {
+                fastFailResponses.add(ProxyUtils.newKibanaException(HttpStatus.BAD_REQUEST, uiException.getUiShow()));
             } catch (Exception ex) {
                 log.error("msearch param parse error, i:{}, uiIndex:{}, searchQuery:{}", i, uiIndex, searchQuery, ex);
-                fastFailResponses.add(ProxyUtils.newKibanaException(ex.getMessage()));
+                fastFailResponses.add(ProxyUtils.newKibanaException(HttpStatus.BAD_REQUEST, ex.getMessage()));
             }
         }
 

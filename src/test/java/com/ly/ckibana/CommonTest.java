@@ -64,6 +64,7 @@ public class CommonTest {
     private static final String indexPatternJson = "{\"uiIndex\":\"table1_all\",\"cluster\":\"\",\"index\":\"table1_all\",\"database\":\"testdb\",\"timeField\":\"@timestampDateTime\",\"needSample\":false}";
     //kibana代理配置信息
     private static final String kibanaPropertyJson = "{\"defaultShard\":2,\"majorVersion\":6,\"proxy\":{\"ck\":{\"defaultCkDatabase\":\"testdb\",\"pass\":\"fc/3EtAe\",\"url\":\"10.177.43.183:6321\",\"user\":\"limited\"},\"es\":{\"headers\":{\"stoken\":\"b7842e1285e1d277e1730c41\"},\"host\":\"10.100.218.58:30691,10.100.218.60:30691,10.100.218.61:30691,10.100.218.62:30691,10.100.218.63:30691,10.100.218.64:30691\"},\"maxTimeRange\":86400000,\"roundAbleMinPeriod\":120000,\"whiteIndexList\":[\"table1_all\"]},\"query\":{\"sampleCountMaxThreshold\":1500000,\"useCache\":false,\"maxResultRow\":30000},\"threadPool\":{\"msearchProperty\":{\"coreSize\":100,\"queueSize\":10000}},\"yaml\":{\"name\":\"Yaml:1569371800\"}}";
+    private static final String DO_TEST = "doTest";
     @Resource
     private MsearchParamParser msearchParamParser;
     @Resource
@@ -90,7 +91,7 @@ public class CommonTest {
     }
 
     /**
-     * 基于查询参数，转换得到sql列表，并于期望值比对。比对一致则通过，不一致则失败
+     * 基于查询参数，转换得到sql列表，并与期望值比对。比对一致则通过，不一致则失败
      *
      * @param searchQueryJson 参数
      * @param needQueryHits   是否需要额外解析hits明细查询sql
@@ -103,10 +104,32 @@ public class CommonTest {
             List<String> resultSqlList = convert2SqlList(searchQueryJson, needQueryHits);
             assertResult(testName, resultSqlList, expectedSqlList);
         } catch (Exception e) {
-            log.error("doTest", e);
+            log.error(DO_TEST, e);
             Assert.assertTrue(Boolean.FALSE);
         }
+    }
 
+    /**
+     * 基于查询参数，解析获取异常。并与期望异常比对。比对一致通过，不一致则失败
+     *
+     * @param testName
+     * @param searchQueryJson
+     * @param expectException
+     */
+    public void doTest(String testName, String searchQueryJson, Boolean needQueryHits,Exception expectException) {
+        try {
+            proxyConfigLoader.setKibanaProperty(JSONObject.parseObject(kibanaPropertyJson, KibanaProperty.class));
+            convert2SqlList(searchQueryJson, needQueryHits);
+            log.error(DO_TEST, String.format("%s期望异常%s，实际无异常", testName, expectException));
+            Assert.assertTrue(Boolean.FALSE);
+        } catch (Exception e) {
+            if (e.toString().equals(expectException.toString())) {
+                Assert.assertTrue(Boolean.TRUE);
+            } else {
+                log.error(DO_TEST, String.format("%s期望异常%s，实际异常为%s", testName, expectException, e));
+                Assert.assertTrue(Boolean.FALSE);
+            }
+        }
     }
 
     /**
@@ -186,7 +209,7 @@ public class CommonTest {
         Map<String, Map<String, String>> tableColumnsCache = JSONObject.parseObject(tableColumnsCacheJson, Map.class);
         JSONObject searchQuery = JSONObject.parseObject(searchQueryJson);
         IndexPattern indexPattern = JSONObject.parseObject(indexPatternJson, IndexPattern.class);
-        CkRequestContext ckRequestContext = new CkRequestContext("testIp", indexPattern,proxyConfigLoader.getKibanaProperty().getQuery().getMaxResultRow());
+        CkRequestContext ckRequestContext = new CkRequestContext("testIp", indexPattern, proxyConfigLoader.getKibanaProperty().getQuery().getMaxResultRow());
         QueryProperty queryProperty = proxyConfigLoader.getKibanaProperty().getQuery();
         CkRequestContext.SampleParam sampleParam = new CkRequestContext.SampleParam(Constants.USE_SAMPLE_COUNT_THREASHOLD, queryProperty.getSampleCountMaxThreshold());
         ckRequestContext.setSampleParam(sampleParam);

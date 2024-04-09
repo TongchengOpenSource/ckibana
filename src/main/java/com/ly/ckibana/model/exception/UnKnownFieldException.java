@@ -15,9 +15,9 @@
  */
 package com.ly.ckibana.model.exception;
 
-public class UnKnowFieldException extends UiException {
+public class UnKnownFieldException extends UiException {
 
-    public UnKnowFieldException(String fieldName) {
+    public UnKnownFieldException(String fieldName) {
         super(fieldName);
     }
 

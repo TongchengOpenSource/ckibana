@@ -16,6 +16,7 @@
 package com.ly.ckibana.converter;
 
 import com.ly.ckibana.CommonTest;
+import com.ly.ckibana.model.exception.UnKnownFieldException;
 import org.junit.Test;
 
 /**
@@ -33,6 +34,8 @@ public class QueryStringClauseTest extends CommonTest {
     public static final String TEST_IP_TYPE_IPV4 = "IP_TYPE_IPV4";
     public static final String TEST_IP_TYPE_IPV6 = "IP_TYPE_IPV6";
     public static final String TEST_NUMBER = "NUMBER";
+    public static final String TEST_UNKNOWN_FIELD_QUERY = "unknownFiledQuery";
+
 
 
     /**
@@ -145,5 +148,15 @@ public class QueryStringClauseTest extends CommonTest {
                 "                \"SELECT count(1) as _count FROM `table1_all` PREWHERE ( (  `i1` = 1 AND NOT  `i1` = 2 AND  ( `i1` >= 2 AND `i1` <= 3) AND NOT  ( `i1` >= 4 AND `i1` <= 5) AND  `i1` in (6,7) AND NOT  `i1` in (8,9) AND ( `i2`  >10 AND  `i2`  >=11 OR ( `i2`  <10 AND  `i2`  <=11)) AND ( NOT  `i3`  >12 AND NOT  `i3`  >=13 AND NOT  `i3`  <14 AND NOT  `i2`  <=15) )  AND  (  `i1` = 1 AND NOT  `i1` = 2 AND  ( `i1` >= 2 AND `i1` <= 3) AND NOT  ( `i1` >= 4 AND `i1` <= 5) AND  `i1` in (6,7) AND NOT  `i1` in (8,9) AND ( `i2`  >10 AND  `i2`  >=11 OR ( `i2`  <10 AND  `i2`  <=11)) AND ( NOT  `i3`  >12 AND NOT  `i3`  >=13 AND NOT  `i3`  <14 AND NOT  `i2`  <=15) ) ) AND ((  `@timestampDateTime` <= toDateTime64(1697890560000/1000,3)  AND  `@timestampDateTime` >= toDateTime64(1697889660000/1000,3)  ))\"\n" +
                 "            ]";
         doTest(TEST_NUMBER, query, Boolean.FALSE, expectedSqls);
+    }
+
+    /**
+     * queryString-unknownField Query
+     * unknowField:"value"
+     */
+    @Test
+    public void testUnknownFiledQuery(){
+        String query = "{\"version\":true,\"size\":500,\"sort\":[{\"@timestamp\":{\"order\":\"desc\",\"unmapped_type\":\"boolean\"}}],\"_source\":{\"excludes\":[]},\"aggs\":{\"2\":{\"date_histogram\":{\"field\":\"@timestampDateTimeOnly\",\"interval\":\"30s\",\"time_zone\":\"Asia/Shanghai\",\"min_doc_count\":1}}},\"stored_fields\":[\"*\"],\"script_fields\":{},\"docvalue_fields\":[{\"field\":\"@timestampDateTime\",\"format\":\"date_time\"},{\"field\":\"@timestampDateTimeOnly\",\"format\":\"date_time\"}],\"query\":{\"bool\":{\"must\":[{\"query_string\":{\"query\":\"unknownFiled:\\\"value\\\"\",\"analyze_wildcard\":true,\"default_field\":\"*\"}},{\"range\":{\"@timestampDateTimeOnly\":{\"gte\":1712659440994,\"lte\":1712660340994,\"format\":\"epoch_millis\"}}}],\"filter\":[],\"should\":[],\"must_not\":[]}},\"highlight\":{\"pre_tags\":[\"@kibana-highlighted-field@\"],\"post_tags\":[\"@/kibana-highlighted-field@\"],\"fields\":{\"*\":{}},\"fragment_size\":2147483647},\"timeout\":\"300000ms\"}";
+        doTest(TEST_UNKNOWN_FIELD_QUERY, query, Boolean.FALSE,new UnKnownFieldException("unknownFiled"));
     }
 }
