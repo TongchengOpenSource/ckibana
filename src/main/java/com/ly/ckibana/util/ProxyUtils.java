@@ -28,6 +28,7 @@ import com.ly.ckibana.model.response.Response;
 import com.ly.ckibana.model.response.Shards;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.http.HttpStatus;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -195,9 +196,11 @@ public class ProxyUtils {
     public static boolean isDate(String type) {
         return parseCkBaseType(type).startsWith("Date");
     }
-
+    
     /**
      * 构建kibana exception.
+     * @param error 异常说明
+     * @return
      */
     public static Response newKibanaException(String error) {
         Map<String, Object> searchError = new HashMap<>(2, 1);
@@ -223,6 +226,24 @@ public class ProxyUtils {
                 ));
     }
 
+    /**
+     * 构建kibana exception.
+     * @param httpStatus 状态码
+     * @param error 异常说明
+     * @return
+     */
+    public static Response newKibanaException(HttpStatus httpStatus,String error) {
+        Map<String, Object> searchError = new HashMap<>(2, 1);
+        searchError.put("name", "SearchError");
+        searchError.put("message", error);
+        Response result = new Response();
+        result.setStatus(httpStatus.value());
+        result.setAggregations(null);
+        result.setHits(null);
+        result.setShards(null);
+        result.setError(searchError);
+        return result;
+    }
     public static String getErrorResponse(Exception e) {
         return getErrorResponse(e.getMessage());
     }

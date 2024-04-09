@@ -24,7 +24,7 @@ import com.ly.ckibana.model.exception.CkSQLException;
 import com.ly.ckibana.model.exception.DataSourceEmptyException;
 import com.ly.ckibana.model.exception.ResourceExceedException;
 import com.ly.ckibana.model.exception.TooManySimultaneousException;
-import com.ly.ckibana.model.exception.UnKnowFieldException;
+import com.ly.ckibana.model.exception.UnKnownFieldException;
 import com.ly.ckibana.model.property.CkProperty;
 import com.ly.ckibana.model.request.CkRequestContext;
 import com.ly.ckibana.model.request.ProxyConfig;
@@ -264,7 +264,7 @@ public class CkService {
                 String field = ex.getCause().getMessage().split("while processing query")[0];
                 field = field.replace("Code: 47, e.displayText() = DB::Exception: Missing columns:", "")
                         .replace("'", "").replace(" ", "");
-                throw new UnKnowFieldException(field);
+                throw new UnKnownFieldException(field);
             } else if (ex.getErrorCode() == ClickHouseErrorCode.UNKNOWN_TABLE.code) {
                 throw new CKNotSupportException(ex.getMessage());
             } else {
