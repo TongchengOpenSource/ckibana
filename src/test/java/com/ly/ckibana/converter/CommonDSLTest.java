@@ -16,6 +16,7 @@
 package com.ly.ckibana.converter;
 
 import com.ly.ckibana.CommonTest;
+import com.ly.ckibana.model.exception.UnKnownFieldException;
 import org.junit.Test;
 
 /**
@@ -28,6 +29,8 @@ public class CommonDSLTest extends CommonTest {
     public static final String TEST_INTEGER_DSL = "INTEGER_DSL";
     public static final String TEST_STRING_DSL = "STRING_DSL";
     public static final String TEST_DATETIME64_DSL = "DATETIME64_DSL";
+    public static final String TEST_UNKNOWN_FIELD_QUERY = "unknownFiledQuery";
+
 
     /**
      * 整型DSL查询测试
@@ -82,5 +85,15 @@ public class CommonDSLTest extends CommonTest {
                 "            ]";
         doTest(TEST_DATETIME64_DSL, query, Boolean.TRUE, expectedSqls);
 
+    }
+
+    /**
+     * DSL-unknownField Query
+     * unknowField:"value"
+     */
+    @Test
+    public void testUnknownFiledQuery(){
+        String query = "{\"version\":true,\"size\":500,\"sort\":[{\"@timestamp\":{\"order\":\"desc\",\"unmapped_type\":\"boolean\"}}],\"_source\":{\"excludes\":[]},\"aggs\":{\"2\":{\"date_histogram\":{\"field\":\"@timestampDateTimeOnly\",\"interval\":\"30s\",\"time_zone\":\"Asia/Shanghai\",\"min_doc_count\":1}}},\"stored_fields\":[\"*\"],\"script_fields\":{},\"docvalue_fields\":[{\"field\":\"@timestampDateTime\",\"format\":\"date_time\"},{\"field\":\"@timestampDateTimeOnly\",\"format\":\"date_time\"}],\"query\":{\"bool\":{\"must\":[{\"match_all\":{}},{\"match_phrase\":{\"unknowField\":{\"query\":\"value\"}}},{\"range\":{\"@timestampDateTimeOnly\":{\"gte\":1712659236502,\"lte\":1712660136502,\"format\":\"epoch_millis\"}}}],\"filter\":[],\"should\":[],\"must_not\":[]}},\"highlight\":{\"pre_tags\":[\"@kibana-highlighted-field@\"],\"post_tags\":[\"@/kibana-highlighted-field@\"],\"fields\":{\"*\":{}},\"fragment_size\":2147483647},\"timeout\":\"300000ms\"}";
+        doTest(TEST_UNKNOWN_FIELD_QUERY, query, Boolean.FALSE,new UnKnownFieldException("unknowField"));
     }
 }

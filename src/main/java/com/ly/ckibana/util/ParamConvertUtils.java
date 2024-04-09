@@ -15,7 +15,7 @@
  */
 package com.ly.ckibana.util;
 
-import com.ly.ckibana.constants.Constants;
+import com.ly.ckibana.model.exception.UnKnownFieldException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
@@ -40,9 +40,9 @@ public class ParamConvertUtils {
         if (!columns.containsKey(result)) {
             result = StringUtils.trim(result);
         }
-        // 扩展动态字段查询
-        if (!columns.containsKey(result) && columns.containsKey(Constants.CK_EXTENSION)) {
-            result = String.format("%s(%s,'%s')", Constants.CK_EXTENSION_QUERY_FUNCTION, Constants.CK_EXTENSION, result);
+        // 未定义字段不支持查询
+        if (!columns.containsKey(result)) {
+            throw new UnKnownFieldException(result);
         }
         return result;
     }
