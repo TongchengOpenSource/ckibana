@@ -144,6 +144,11 @@ public class CkService {
         return queryTablesWithCondition(proxyConfig, tableCondition);
     }
 
+    public Pair<List<String>, String> queryTablesWithSql(ProxyConfig proxyConfig, String tableName) throws Exception {
+        String tableCondition = String.format("name = '%s' ", tableName);
+        return queryTablesWithConditionWithSql(proxyConfig, tableCondition);
+    }
+
     public List<String> queryAllTables(ProxyConfig proxyConfig) throws Exception {
         return queryTablesWithCondition(proxyConfig, null);
     }
@@ -154,6 +159,11 @@ public class CkService {
     }
 
     private List<String> queryTablesWithCondition(ProxyConfig proxyConfig, String tableCondition) throws Exception {
+        Pair<List<String>, String> result = queryTablesWithConditionWithSql(proxyConfig, tableCondition);
+        return result.getLeft();
+    }
+
+    private Pair<List<String>, String> queryTablesWithConditionWithSql(ProxyConfig proxyConfig, String tableCondition) throws Exception {
         String ckDatabase = proxyConfig.getCkDatabase();
         if (ckDatabase == null) {
             throw new DataSourceEmptyException("clickhouse数据源为空，请检查配置proxy.ck");
@@ -163,7 +173,7 @@ public class CkService {
             sql = String.format("%s AND %s ", sql, tableCondition);
         }
         List<JSONObject> tables = queryData(proxyConfig, sql);
-        return tables.stream().map(each -> each.getString("name")).collect(Collectors.toList());
+        return Pair.of(tables.stream().map(each -> each.getString("name")).collect(Collectors.toList()), sql);
     }
 
     public Map<String, String> queryColumns(BalancedClickhouseDataSource clickhouseDataSource, String table) throws Exception {
