@@ -74,7 +74,7 @@ public class MsearchParamParser extends ParamParser {
     public void checkTimeInRange(CkRequestContext ckRequestContext) {
         if (!isTimeInRange(ckRequestContext)) {
             throw new TimeNotInRangeException("查询时间跨度太大,目前支持最大查询区间为:"
-                    + DateUtils.formatDurationWords(proxyConfigLoader.getKibanaProperty().getProxy().getMaxTimeRange()));
+                                              + DateUtils.formatDurationWords(proxyConfigLoader.getKibanaProperty().getProxy().getMaxTimeRange()));
         }
     }
 
@@ -146,6 +146,9 @@ public class MsearchParamParser extends ParamParser {
                 each.keySet().forEach(orgField -> {
                     Map<String, String> columns = ckRequestContext.getColumns();
                     String ckSortFieldName = ParamConvertUtils.convertUiFieldToCkField(columns, orgField);
+                    if (Constants.DOC_TYPE.equals(ckSortFieldName)) {
+                        return;
+                    }
                     // 如果该字段在ck中不存在，且无ck_assembly_extension扩展字段，则不放到排序条件中
                     if (!columns.containsKey(ckSortFieldName) && !columns.containsKey(Constants.CK_EXTENSION)) {
                         return;
