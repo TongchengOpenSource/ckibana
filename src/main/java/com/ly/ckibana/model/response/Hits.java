@@ -34,5 +34,5 @@ public class Hits {
     @JsonProperty("max_score")
     private long maxScore;
 
-    private long total;
+    private Object total;
 }
