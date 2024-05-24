@@ -145,3 +145,6 @@ The group supports both Enterprise WeChat and personal WeChat accounts
 ## License
 
 [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.html) Copyright (C) Apache Software Foundation
+
+## Star ⭐
+[![Stargazers over time](https://starchart.cc/TongchengOpenSource/ckibana.svg?variant=adaptive)](https://starchart.cc/TongchengOpenSource/ckibana)

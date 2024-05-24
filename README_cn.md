@@ -138,3 +138,6 @@ eg：如果ck表名是table_test，则创建index pattern的名字就是table_te
 ## License
 
 [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.html) Copyright (C) Apache Software Foundation
+
+## Star ⭐
+[![Stargazers over time](https://starchart.cc/TongchengOpenSource/ckibana.svg?variant=adaptive)](https://starchart.cc/TongchengOpenSource/ckibana)
