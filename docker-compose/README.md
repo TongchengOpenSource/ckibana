@@ -9,6 +9,9 @@
 
 ## 使用
 ```shell
+# （可选）确保内核参数满足ElasticSearch运行要求，否则es容器起不来
+sysctl -w vm.max_map_count=262144
+
 # 进入docker-compose目录
 cd ckibana/docker-compose
 
