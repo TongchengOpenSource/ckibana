@@ -204,7 +204,7 @@ public class ProxyConfigLoader {
             try {
                 proxyConfig.getRestClient().close();
                 // create a new es client
-                proxyConfig.setRestClient(RestUtils.initEsResClient(this.kibanaProperty.getProxy().getEs()));
+                proxyConfig.setRestClient(RestUtils.initEsResClient(this.kibanaProperty.getProxy().getEs(), true));
             } catch (IOException e) {
                 log.error("close rest client error.", e);
             }
