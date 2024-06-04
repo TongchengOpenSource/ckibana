@@ -133,6 +133,10 @@ public abstract class BaseHandler implements CorsConfigurationSource {
         Map<String, Header> reqHeaders = HttpServletUtils.parseHttpRequestHeaders(request);
         Map<String, String> defaultHeaders = proxyConfig.getKibanaItemProperty().getEs().getHeaders();
         defaultHeaders.forEach((dhn, dhv) -> {
+            if (dhn.equalsIgnoreCase(Constants.Headers.AUTHORIZATION)) {
+                return;
+            }
+
             for (String headerName : reqHeaders.keySet()) {
                 if (headerName.equalsIgnoreCase(dhn)) {
                     reqHeaders.put(headerName, new BasicHeader(headerName, dhv));

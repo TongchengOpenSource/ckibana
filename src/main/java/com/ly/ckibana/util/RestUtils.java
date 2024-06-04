@@ -75,9 +75,9 @@ public class RestUtils {
     /**
      * 初始化es客户端.
      */
-    public static RestClient initEsResClient(EsProperty item) {
+    public static RestClient initEsResClient(EsProperty item, boolean mergeDefaultHeader) {
         Map<String, String> headersMap = new HashMap<>();
-        if (!CollectionUtils.isEmpty(item.getHeaders())) {
+        if (!CollectionUtils.isEmpty(item.getHeaders()) && mergeDefaultHeader) {
             headersMap.putAll(item.getHeaders());
         }
         return initEsRestClient(item.getHost(), headersMap);
