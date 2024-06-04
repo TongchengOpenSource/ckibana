@@ -226,4 +226,8 @@ public class Constants {
 
         public static final String BULK_INDEX_NO_TYPE_HEADER = "{ \"index\": { \"_index\" : \"%s\", \"_id\": \"%s\"}}";
     }
+
+    public static class Headers {
+        public static final String AUTHORIZATION = "authorization";
+    }
 }

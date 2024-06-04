@@ -48,13 +48,16 @@ public class ProxyConfig {
 
     private RestClient restClient;
 
+    private RestClient userRestClient;
+
     private EsProxyClientConsumer esClientBuffer;
 
     private BalancedClickhouseDataSource ckDatasource;
 
     public ProxyConfig(KibanaItemProperty kibanaItemProperty) {
         this.kibanaItemProperty = kibanaItemProperty;
-        this.restClient = RestUtils.initEsResClient(kibanaItemProperty.getEs());
+        this.restClient = RestUtils.initEsResClient(kibanaItemProperty.getEs(), true);
+        this.userRestClient = RestUtils.initEsResClient(kibanaItemProperty.getEs(), false);
         this.esClientBuffer = new EsProxyClientConsumer();
         if (kibanaItemProperty.getCk() != null) {
             this.ckDatasource = CkService.initDatasource(kibanaItemProperty.getCk());

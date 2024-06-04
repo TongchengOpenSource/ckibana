@@ -61,11 +61,11 @@ public class BlackSqlService {
     }
 
     public String removeBlackSql(String id) {
-        return EsClientUtil.deleteSource(proxyConfigLoader.getMetadataRestClient(), Constants.ConfigFile.BLACK_LIST_INDEX_NAME, id);
+        return EsClientUtil.deleteSource(requestContext.getProxyConfig().getRestClient(), Constants.ConfigFile.BLACK_LIST_INDEX_NAME, id);
     }
 
     public String getList(int size) {
-        return EsClientUtil.search(proxyConfigLoader.getMetadataRestClient(), Constants.ConfigFile.BLACK_LIST_INDEX_NAME, String.format("{\"size\":%s}", size));
+        return EsClientUtil.search(requestContext.getProxyConfig().getRestClient(), Constants.ConfigFile.BLACK_LIST_INDEX_NAME, String.format("{\"size\":%s}", size));
     }
 
     public boolean isBlackSql(long range, String sql) {
