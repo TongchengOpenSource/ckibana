@@ -15,6 +15,7 @@
  */
 package com.ly.ckibana.util;
 
+import com.ly.ckibana.constants.Constants;
 import com.ly.ckibana.constants.SecurityProtocolEnum;
 import com.ly.ckibana.model.property.EsProperty;
 import com.ly.ckibana.model.request.ProxyConfig;
@@ -75,10 +76,16 @@ public class RestUtils {
     /**
      * 初始化es客户端.
      */
-    public static RestClient initEsResClient(EsProperty item, boolean mergeDefaultHeader) {
+    public static RestClient initEsResClient(EsProperty item) {
         Map<String, String> headersMap = new HashMap<>();
-        if (!CollectionUtils.isEmpty(item.getHeaders()) && mergeDefaultHeader) {
-            headersMap.putAll(item.getHeaders());
+        if (!CollectionUtils.isEmpty(item.getHeaders())) {
+            for (Map.Entry<String, String> header : item.getHeaders().entrySet()) {
+                if (header.getKey().equalsIgnoreCase(Constants.Headers.AUTHORIZATION)) {
+                    continue;
+                }
+                headersMap.put(header.getKey(), header.getValue());
+            }
+
         }
         return initEsRestClient(item.getHost(), headersMap);
     }

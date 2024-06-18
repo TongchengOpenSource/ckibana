@@ -56,8 +56,8 @@ public class ProxyConfig {
 
     public ProxyConfig(KibanaItemProperty kibanaItemProperty) {
         this.kibanaItemProperty = kibanaItemProperty;
-        this.restClient = RestUtils.initEsResClient(kibanaItemProperty.getEs(), true);
-        this.userRestClient = RestUtils.initEsResClient(kibanaItemProperty.getEs(), false);
+        this.restClient = RestUtils.initEsResClient(kibanaItemProperty.getEs());
+        this.userRestClient = RestUtils.initEsResClient(kibanaItemProperty.getEs());
         this.esClientBuffer = new EsProxyClientConsumer();
         if (kibanaItemProperty.getCk() != null) {
             this.ckDatasource = CkService.initDatasource(kibanaItemProperty.getCk());
