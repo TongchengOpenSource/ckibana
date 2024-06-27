@@ -3,24 +3,24 @@ package com.ly.ckibana.constants;
 import java.util.Arrays;
 
 /**
- * 协议枚举类
+ * 协议枚举类.
  */
 public enum SecurityProtocolEnum {
     /**
-     * HTTP
+     * HTTP.
      */
     HTTP("http", 80),
     /**
-     * HTTPS
+     * HTTPS.
      */
     HTTPS("https", 443);
 
     /**
-     * 协议名
+     * 协议名.
      */
     private final String scheme;
     /**
-     * 默认端口号
+     * 默认端口号.
      */
     private final int port;
 

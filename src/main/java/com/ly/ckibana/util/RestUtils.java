@@ -170,7 +170,7 @@ public class RestUtils {
     }
 
     /**
-     * 配置 SSL 上下文
+     * 配置 SSL 上下文.
      */
     public static SSLContext sslContext = null;
 
@@ -192,7 +192,7 @@ public class RestUtils {
                 public X509Certificate[] getAcceptedIssuers() {
                     return new X509Certificate[0];
                 }
-            }};
+            } };
             sslContext = SSLContext.getInstance("TLS");
             sslContext.init(null, trustManagers, null);
             return sslContext;

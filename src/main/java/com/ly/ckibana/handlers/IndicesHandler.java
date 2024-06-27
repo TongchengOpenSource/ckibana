@@ -21,25 +21,21 @@ import com.ly.ckibana.configure.web.route.HttpRoute;
 import com.ly.ckibana.constants.Constants;
 import com.ly.ckibana.model.exception.FallbackToEsException;
 import com.ly.ckibana.model.request.RequestContext;
-import com.ly.ckibana.parser.ParamParser;
 import com.ly.ckibana.service.EsClientUtil;
 import com.ly.ckibana.util.JSONUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.Resource;
 import java.util.List;
 
 /**
+ * IndicesHandler.
+ *
  * @author caojiaqiang
  */
-@SuppressWarnings("rawtypes")
 @Component
 public class IndicesHandler extends BaseHandler {
-
-    @Resource
-    private ParamParser paramParser;
 
     @Override
     public List<HttpRoute> routes() {
