@@ -34,9 +34,10 @@ import java.util.List;
 import java.util.Map;
 
 /**
+ * MappingHandler.
+ *
  * @author caojiaqiang
  */
-@SuppressWarnings("rawtypes")
 @Component
 public class MappingHandler extends BaseHandler {
 
@@ -59,7 +60,7 @@ public class MappingHandler extends BaseHandler {
             throw new FallbackToEsException();
         }
         if (!index.equals(Constants.MATCH_ALL) && !context.isCkIndex()) {
-            return EsClientUtil.doRequest(context);
+            throw new FallbackToEsException();
         }
         
         ProxyConfig proxyConfig = context.getProxyConfig();

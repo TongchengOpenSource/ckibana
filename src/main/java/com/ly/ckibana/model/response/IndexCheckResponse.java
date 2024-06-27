@@ -5,7 +5,7 @@ import lombok.Data;
 import java.util.List;
 
 /**
- * 索引检查响应体
+ * 索引检查响应体.
  *
  * @author kizuhiko
  */

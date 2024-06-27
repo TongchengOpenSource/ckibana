@@ -434,7 +434,7 @@ public class SqlUtils {
     }
 
     /**
-     * 是否包含时区
+     * 是否包含时区.
      *
      * @param scale 当前类型
      * @return 是否为时区类型

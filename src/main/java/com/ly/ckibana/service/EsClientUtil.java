@@ -55,7 +55,7 @@ public class EsClientUtil {
     protected static final Header[] BASE_HEADER = new Header[]{new BasicHeader("Content-Type", "application/json")};
 
     /**
-     * 不指定则采用用户restclient
+     * 不指定则采用用户restclient.
      */
     public static String doRequest(RequestContext context) throws Exception {
         return doRequest(context.getProxyConfig().getUserRestClient(), context.getRequestInfo(), context.getHttpResponse());

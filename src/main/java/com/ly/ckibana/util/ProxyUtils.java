@@ -200,7 +200,7 @@ public class ProxyUtils {
     /**
      * 构建kibana exception.
      * @param error 异常说明
-     * @return
+     * @return Response
      */
     public static Response newKibanaException(String error) {
         Map<String, Object> searchError = new HashMap<>(2, 1);
@@ -230,9 +230,9 @@ public class ProxyUtils {
      * 构建kibana exception.
      * @param httpStatus 状态码
      * @param error 异常说明
-     * @return
+     * @return Response
      */
-    public static Response newKibanaException(HttpStatus httpStatus,String error) {
+    public static Response newKibanaException(HttpStatus httpStatus, String error) {
         Map<String, Object> searchError = new HashMap<>(2, 1);
         searchError.put("name", "SearchError");
         searchError.put("message", error);
