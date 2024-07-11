@@ -27,6 +27,7 @@ import com.ly.ckibana.model.exception.TimeNotInRangeException;
 import com.ly.ckibana.model.exception.UiException;
 import com.ly.ckibana.model.exception.UnKnowTimeFieldException;
 import com.ly.ckibana.model.property.KibanaItemProperty;
+import com.ly.ckibana.model.property.MetadataConfigProperty;
 import com.ly.ckibana.model.property.QueryProperty;
 import com.ly.ckibana.model.request.CkRequestContext;
 import com.ly.ckibana.model.request.CkRequestContext.SampleParam;
@@ -70,6 +71,9 @@ public class MsearchParamParser extends ParamParser {
 
     @Resource
     private ClauseStrategySelector clauseStrategySelector;
+
+    @Resource
+    private MetadataConfigProperty metadataConfigProperty;
 
     public void checkTimeInRange(CkRequestContext ckRequestContext) {
         if (!isTimeInRange(ckRequestContext)) {
@@ -206,7 +210,7 @@ public class MsearchParamParser extends ParamParser {
         String[] lines = context.getRequestInfo().getRequestBody().split(System.lineSeparator());
         QueryProperty queryProperty = proxyConfigLoader.getKibanaProperty().getQuery();
         ProxyConfig proxyConfig = context.getProxyConfig();
-        Map<String, String> indexPatternMeta = EsClientUtil.getIndexPatternMeta(context.getProxyConfig().getRestClient());
+        Map<String, String> indexPatternMeta = EsClientUtil.getIndexPatternMeta(context.getProxyConfig().getRestClient(), metadataConfigProperty.getHeaders());
         Map<String, Map<String, String>> tableColumnsCache = new HashMap<>();
         Map<String, Long> totalCountByQueryCache = new HashMap<>();
         for (int i = 0; i < lines.length; i++) {

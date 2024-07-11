@@ -22,6 +22,7 @@ import com.ly.ckibana.constants.Constants;
 import com.ly.ckibana.model.compute.indexpattern.IndexPattern;
 import com.ly.ckibana.model.exception.FallbackToEsException;
 import com.ly.ckibana.model.exception.UiException;
+import com.ly.ckibana.model.property.MetadataConfigProperty;
 import com.ly.ckibana.model.property.QueryProperty;
 import com.ly.ckibana.model.request.CkRequestContext;
 import com.ly.ckibana.model.request.ProxyConfig;
@@ -57,6 +58,9 @@ public class AsyncSearchHandler extends BaseHandler {
     @Resource
     private MsearchParamParser msearchParamParser;
 
+    @Resource
+    private MetadataConfigProperty metadataConfigProperty;
+
     @Override
     public List<HttpRoute> routes() {
         return List.of(
@@ -76,7 +80,7 @@ public class AsyncSearchHandler extends BaseHandler {
         IndexPattern indexPattern = proxyConfig.buildIndexPattern(index);
         CkRequestContext ckRequestContext = new CkRequestContext(context.getClientIp(), indexPattern, paramParser.getMaxResultRow());
         Map<String, Map<String, String>> tableColumnsCache = new HashMap<>();
-        String timeField = EsClientUtil.getIndexPatternMeta(context.getProxyConfig().getRestClient()).get(index);
+        String timeField = EsClientUtil.getIndexPatternMeta(context.getProxyConfig().getRestClient(), metadataConfigProperty.getHeaders()).get(index);
         if (timeField == null) {
             log.warn("please set the date field of this index. [{}]", index);
             return JSONUtils.serialize(ProxyUtils.newKibanaException("请设置该索引的date字段"));
