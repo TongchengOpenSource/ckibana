@@ -41,6 +41,7 @@ import org.elasticsearch.client.RestClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpMethod;
+import org.springframework.util.CollectionUtils;
 
 import javax.servlet.http.HttpServletResponse;
 import java.nio.charset.StandardCharsets;
@@ -351,14 +352,26 @@ public class EsClientUtil {
      * @param restClient proxy request client
      * @return 元数据
      */
-    public static Map<String, String> getIndexPatternMeta(RestClient restClient) {
+    public static Map<String, String> getIndexPatternMeta(RestClient restClient, Map<String, String> headers) {
         Map<String, String> result = new HashMap<>();
         try {
+            Header[] queryHeaders;
+            if (!CollectionUtils.isEmpty(headers)) {
+                queryHeaders = new Header[headers.size() + 1];
+                int index = 0;
+                for (Map.Entry<String, String> item : headers.entrySet()) {
+                    queryHeaders[++index] = new BasicHeader(item.getKey(), item.getValue());
+                }
+                queryHeaders[0] = new BasicHeader("Content-Type", "application/json");
+            } else {
+                queryHeaders = BASE_HEADER;
+            }
+
             String query = "{\"size\":10000,\"seq_no_primary_term\":true,\"query\":{\"bool\":{\"filter\":[{\"bool\":{\"should\":"
                            + "[{\"bool\":{\"must\":[{\"term\":{\"type\":\"index-pattern\"}}],\"must_not\":[{\"exists\":{\"field\":\"namespace\"}}]}}],\"minimum_should_match\":1}}]}}}";
             String responseBody = doRequest(restClient,
                     HttpMethod.POST.name(), "/" + Constants.KIBANA_META_INDEX + "/_search?ignore_unavailable=true",
-                    BASE_HEADER, null, query);
+                    queryHeaders, null, query);
             JSONObject responseObj = JSONObject.parse(responseBody);
             if (responseObj.containsKey(Constants.HIT) && responseObj.getJSONObject(Constants.HIT).containsKey(Constants.HIT)) {
                 JSONArray array = responseObj.getJSONObject(Constants.HIT).getJSONArray(Constants.HIT);
