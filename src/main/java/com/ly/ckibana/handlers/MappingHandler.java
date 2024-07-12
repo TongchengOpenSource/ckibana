@@ -20,6 +20,7 @@ import com.ly.ckibana.configure.web.route.HttpRoute;
 import com.ly.ckibana.constants.Constants;
 import com.ly.ckibana.model.compute.indexpattern.IndexPattern;
 import com.ly.ckibana.model.exception.FallbackToEsException;
+import com.ly.ckibana.model.property.MetadataConfigProperty;
 import com.ly.ckibana.model.request.ProxyConfig;
 import com.ly.ckibana.model.request.RequestContext;
 import com.ly.ckibana.parser.ParamParser;
@@ -44,6 +45,9 @@ public class MappingHandler extends BaseHandler {
     @Resource
     private ParamParser paramParser;
 
+    @Resource
+    private MetadataConfigProperty metadataConfigProperty;
+
     @Override
     public List<HttpRoute> routes() {
         return List.of(
@@ -65,7 +69,7 @@ public class MappingHandler extends BaseHandler {
         
         ProxyConfig proxyConfig = context.getProxyConfig();
         IndexPattern indexPattern = proxyConfig.buildIndexPattern(context.getOriginalIndex(), index);
-        indexPattern.setTimeField(EsClientUtil.getIndexPatternMeta(context.getProxyConfig().getRestClient()).getOrDefault(index, null));
+        indexPattern.setTimeField(EsClientUtil.getIndexPatternMeta(context.getProxyConfig().getRestClient(), metadataConfigProperty.getHeaders()).getOrDefault(index, null));
         Map<String, JSONObject> fields = paramParser.queryIndexPatternFields(context, indexPattern, true);
     
         JSONObject properties = new JSONObject();
