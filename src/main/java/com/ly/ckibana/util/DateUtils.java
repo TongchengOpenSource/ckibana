@@ -125,6 +125,11 @@ public class DateUtils {
                 .atZone(ZONE_LOCAL).toInstant().toEpochMilli();
     }
 
+    private static Long toEpochMilliWithUTC(String dateStr, DateTimeFormatter dateTimeFormatter) {
+        return LocalDateTime.parse(dateStr, dateTimeFormatter)
+                .atZone(ZoneId.of("UTC")).toInstant().toEpochMilli();
+    }
+
     /**
      * 支持时间转换为时间戳.
      *
@@ -135,7 +140,7 @@ public class DateUtils {
         if (dateTime instanceof String dateTimeStr) {
             for (DateTimeFormatter formatter : DEFAULT_DATE_FORMATTER_LIST) {
                 if (isDateFormatValid(dateTimeStr, formatter)) {
-                    return toEpochMilli(dateTimeStr, formatter);
+                    return toEpochMilliWithUTC(dateTimeStr, formatter);
                 }
             }
         }
