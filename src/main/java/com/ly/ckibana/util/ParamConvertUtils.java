@@ -15,7 +15,7 @@
  */
 package com.ly.ckibana.util;
 
-import com.ly.ckibana.constants.Constants;
+import com.ly.ckibana.constants.EsConstants;
 import com.ly.ckibana.model.exception.UnKnownFieldException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -42,7 +42,7 @@ public class ParamConvertUtils {
             result = StringUtils.trim(result);
         }
         // 未定义字段不支持查询
-        if (!columns.containsKey(result) && !Constants.DOC_TYPE.equals(orgField)) {
+        if (!columns.containsKey(result) && !EsConstants.KIBANA_DEFAULT_SORT_FILEDS.contains(orgField)) {
             throw new UnKnownFieldException(result);
         }
         return result;
