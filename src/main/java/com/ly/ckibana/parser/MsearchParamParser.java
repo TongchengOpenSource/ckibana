@@ -20,6 +20,7 @@ import com.alibaba.fastjson2.JSONObject;
 import com.google.common.base.Strings;
 import com.ly.ckibana.configure.config.ProxyConfigLoader;
 import com.ly.ckibana.constants.Constants;
+import com.ly.ckibana.constants.EsConstants;
 import com.ly.ckibana.constants.SqlConstants;
 import com.ly.ckibana.model.compute.indexpattern.IndexPattern;
 import com.ly.ckibana.model.enums.SortType;
@@ -150,7 +151,7 @@ public class MsearchParamParser extends ParamParser {
                 each.keySet().forEach(orgField -> {
                     Map<String, String> columns = ckRequestContext.getColumns();
                     String ckSortFieldName = ParamConvertUtils.convertUiFieldToCkField(columns, orgField);
-                    if (Constants.DOC_TYPE.equals(ckSortFieldName)) {
+                    if (EsConstants.KIBANA_DEFAULT_SORT_FILEDS.contains(ckSortFieldName)) {
                         return;
                     }
                     // 如果该字段在ck中不存在，且无ck_assembly_extension扩展字段，则不放到排序条件中
