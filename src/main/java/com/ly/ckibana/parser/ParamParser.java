@@ -267,7 +267,6 @@ public class ParamParser {
         Map<String, JSONObject> result = new HashMap<>();
         String tableName = indexPattern.getIndex();
         Map<String, String> columns = ckService.queryColumns(requestContext.getProxyConfig().getCkDatasource(), tableName);
-        //特殊查询字段不存在，转为真实对应的ck字段
         for (Map.Entry<String, String> each : columns.entrySet()) {
             String ckName = each.getKey();
             String ckType = each.getValue();
@@ -276,9 +275,26 @@ public class ParamParser {
                     isNotIndexPatternTimeField(indexPattern, ckName) ? Boolean.FALSE : isForSelectTimeField);
             JSONObject jsonObjectType = new JSONObject();
             jsonObjectType.put(esType, new IndexPatternFields(ckName, esType));
-            result.put(ckName, jsonObjectType);
+            //string类额外支持.keyword字段返回
+            if (ProxyUtils.isString(ckType)) {
+                addOneField(ckName + Constants.ES_KEYWORD, esType, result);
+            }
+            addOneField(ckName, esType, result);
         }
         return result;
+    }
+
+    /**
+     * 添加一个字段到indexPattern fields返回结果
+     *
+     * @param name
+     * @param type
+     * @param fields
+     */
+    private static void addOneField(String name, String type, Map<String, JSONObject> fields) {
+        JSONObject fieldObject = new JSONObject();
+        fieldObject.put(type, new IndexPatternFields(name, type));
+        fields.put(name, fieldObject);
     }
 
     /**
