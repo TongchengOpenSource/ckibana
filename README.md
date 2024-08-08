@@ -50,6 +50,11 @@ It is recommended to use version 6.x of Kibana. This version is used internally 
 | filter item             |            |
 | cardinality             |            |
 
+
+#### UnSupported  Syntax:
+Kibana Query Language(KQL)  is not supported, it is recommended to use the lucene instead。
+![img.png](close_kql.png)
+
 ## Get started
 ### quick start
 To quickly experience Kibana, you can deploy it quickly using docker-compose.
