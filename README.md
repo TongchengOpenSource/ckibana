@@ -53,7 +53,8 @@ It is recommended to use version 6.x of Kibana. This version is used internally 
 
 #### UnSupported  Syntax:
 Kibana Query Language(KQL)  is not supported, it is recommended to use the lucene instead。
-![img.png](close_kql.png)
+
+![img_1.png](img_close_kql.png)
 
 ## Get started
 ### quick start
