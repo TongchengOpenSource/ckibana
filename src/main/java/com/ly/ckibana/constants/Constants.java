@@ -45,7 +45,6 @@ public class Constants {
 
     public static final String KEY_NAME = "key";
 
-    public static final String DOC_TYPE = "_doc";
     /**
      * es查询参数关键字.
      */

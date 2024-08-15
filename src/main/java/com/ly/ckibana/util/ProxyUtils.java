@@ -335,7 +335,7 @@ public class ProxyUtils {
             result = "ip";
         } else if ("_source".equals(ckName)) {
             result = "_source";
-        } else if (isDate(ckType) || isTimeFieldOptionByName(ckName, isForSelectTimeField)) {
+        } else if (isDate(ckType)  || isTimeFieldOption(ckName, ckType, isForSelectTimeField)) {
             result = "date";
         } else if (isString(ckType)) {
             result = "string";
@@ -348,8 +348,8 @@ public class ProxyUtils {
     /**
      * 除了DateTime64类型，其他可作为时间字段的字段列表。如采样时用的UInt类型等.
      */
-    private static boolean isTimeFieldOptionByName(String ckName, boolean isForSelectTimeField) {
-        return isForSelectTimeField && ckName.contains(TIME_FIELD_OPTION_MATCH_NAME);
+    private static boolean isTimeFieldOption(String ckName, String ckType, boolean isForSelectTimeField) {
+        return isForSelectTimeField && (ckName.contains(TIME_FIELD_OPTION_MATCH_NAME) || isNumeric(ckType));
     }
 
     /**
