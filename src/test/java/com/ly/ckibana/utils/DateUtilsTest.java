@@ -19,6 +19,13 @@ import com.ly.ckibana.util.DateUtils;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Locale;
+
 /**
  * 时间round测试
  *
@@ -66,16 +73,26 @@ public class DateUtilsTest {
         long hour = 4 * 60 * 60 * 1000 + min;
         long day = 5 * 24 * 60 * 60 * 1000 + hour;
 
-        Assert.assertTrue("formatDurationWordsTest ms正常","100ms".equals(DateUtils.formatDurationWords(millSeconds)));
-        Assert.assertTrue("formatDurationWordsTest s正常","2 seconds".equals(DateUtils.formatDurationWords(seconds)));
-        Assert.assertTrue("formatDurationWordsTest min正常","3 minutes 2 seconds".equals(DateUtils.formatDurationWords(min)));
-        Assert.assertTrue("formatDurationWordsTest hour正常","4 hours 3 minutes 2 seconds".equals(DateUtils.formatDurationWords(hour)));
-        Assert.assertTrue("formatDurationWordsTest day正常","5 days 4 hours 3 minutes 2 seconds".equals(DateUtils.formatDurationWords(day)));
+        Assert.assertTrue("formatDurationWordsTest ms正常", "100ms".equals(DateUtils.formatDurationWords(millSeconds)));
+        Assert.assertTrue("formatDurationWordsTest s正常", "2 seconds".equals(DateUtils.formatDurationWords(seconds)));
+        Assert.assertTrue("formatDurationWordsTest min正常", "3 minutes 2 seconds".equals(DateUtils.formatDurationWords(min)));
+        Assert.assertTrue("formatDurationWordsTest hour正常", "4 hours 3 minutes 2 seconds".equals(DateUtils.formatDurationWords(hour)));
+        Assert.assertTrue("formatDurationWordsTest day正常", "5 days 4 hours 3 minutes 2 seconds".equals(DateUtils.formatDurationWords(day)));
+    }
 
+    @Test
+    public void toEpochMilliTest() {
+        String utc = "2024-07-12T08:46:21.659Z";
+        Locale locale = Locale.getDefault();
+        long ts1 = LocalDateTime.parse(utc, DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'").localizedBy(locale)).atZone(ZoneId.of("UTC")).toInstant().toEpochMilli();
+        Assert.assertEquals(ts1, 1720773981659L);
 
-
-
-
+        Instant instant = Instant.parse(utc);
+        ZoneId shanghaiZoneId = ZoneId.of("Asia/Shanghai");
+        ZonedDateTime shanghaiTime = instant.atZone(shanghaiZoneId);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+        String formattedShanghaiTime = shanghaiTime.format(formatter);
+        Assert.assertEquals(formattedShanghaiTime, "2024-07-12T16:46:21.659Z");
     }
 
 
