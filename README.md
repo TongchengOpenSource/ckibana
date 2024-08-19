@@ -148,9 +148,10 @@ After completing the above 5 steps, you can create a dashboard and start using i
 The group supports both Enterprise WeChat and personal WeChat accounts
 ![](http://oss.17usoft.com/infra-github/ckibana/join-us.png)
 
+## HelloGithub计划
+<a href="https://hellogithub.com/repository/0bcbf56bab0140c7983ecd57eb3dddde" target="_blank"><img src="https://api.hellogithub.com/v1/widgets/recommend.svg?rid=0bcbf56bab0140c7983ecd57eb3dddde&claim_uid=G2Xcw3hN9ZkEloL" alt="Featured｜HelloGitHub" style="width: 250px; height: 54px;" width="250" height="54" /></a>
+
 ## License
 
 [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.html) Copyright (C) Apache Software Foundation
 
-## Star ⭐
-[![Stargazers over time](https://starchart.cc/TongchengOpenSource/ckibana.svg?variant=adaptive)](https://starchart.cc/TongchengOpenSource/ckibana)
