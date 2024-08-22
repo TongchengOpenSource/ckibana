@@ -18,9 +18,11 @@ package com.ly.ckibana.model.compute.aggregation.bucket;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import java.math.BigDecimal;
+
 @EqualsAndHashCode(callSuper = true)
 @Data
 public class MathBucket extends Bucket {
 
-    private double value;
+    private BigDecimal value;
 }

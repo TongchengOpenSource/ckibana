@@ -36,6 +36,7 @@ import com.ly.ckibana.util.JSONUtils;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -293,7 +294,7 @@ public class ResultParser extends HitsResultParser {
                 //math类bucket只有一个bucket
                 MathBucket m1 = (MathBucket) s1.getBuckets().get(0);
                 MathBucket m2 = (MathBucket) s2.getBuckets().get(0);
-                int compareValue = (int) (m1.getValue() - m2.getValue());
+                int compareValue =  (m1.getValue().compareTo(m2.getValue()));
                 return orderValue.equalsIgnoreCase(SortType.ASC.name()) ? compareValue : (-compareValue);
             }).collect(Collectors.toList());
         }
