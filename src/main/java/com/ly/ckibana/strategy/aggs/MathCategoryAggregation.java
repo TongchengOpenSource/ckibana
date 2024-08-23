@@ -28,6 +28,7 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -61,7 +62,7 @@ public class MathCategoryAggregation extends Aggregation {
     public MathBucket buildResultBucket(JSONObject obj) {
         MathBucket result = new MathBucket();
         result.setKey(queryFieldName());
-        result.setValue(obj.getDoubleValue(queryFieldName()));
+        result.setValue(new BigDecimal(obj.getString(queryFieldName())));
         return result;
     }
 }
