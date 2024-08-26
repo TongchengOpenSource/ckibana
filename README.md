@@ -139,7 +139,7 @@ After completing the above 5 steps, you can create a dashboard and start using i
 - Segmented query: Supports automatically splitting query time, which can fully utilize the cache and improve query performance.
 
 ## Documentation
-[CKibane-docs](https://tongchengopensource.github.io/ckibana-docs)  
+[CKibana-docs](https://tongchengopensource.github.io/ckibana-docs)  
 
 ## Contributors
 

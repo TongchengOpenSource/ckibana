@@ -57,6 +57,8 @@ public class ParamHandler extends BaseHandler {
     
     private static final String USE_CACHE = "/config/updateUseCache";
     
+    private static final String MAX_RESULT_ROW = "/config/updateMaxResultRow";
+    
     private static final String ROUND_ABLE_MIN_PERIOD = "/config/updateRoundAbleMinPeriod";
     
     private static final String ROUND = "/config/updateRound";
@@ -77,6 +79,7 @@ public class ParamHandler extends BaseHandler {
                 HttpRoute.newRoute().path(SAMPLE_LIST).methods(HttpMethod.POST),
                 HttpRoute.newRoute().path(SAMPLE_MAX_THRESHOLD).methods(HttpMethod.POST),
                 HttpRoute.newRoute().path(USE_CACHE).methods(HttpMethod.POST),
+                HttpRoute.newRoute().path(MAX_RESULT_ROW).methods(HttpMethod.POST),
                 HttpRoute.newRoute().path(ROUND_ABLE_MIN_PERIOD).methods(HttpMethod.POST),
                 HttpRoute.newRoute().path(ROUND).methods(HttpMethod.POST),
                 HttpRoute.newRoute().path(MAX_TIME_RANGE).methods(HttpMethod.POST),
@@ -119,6 +122,9 @@ public class ParamHandler extends BaseHandler {
                     break;
                 case USE_CACHE:
                     kibanaProperty.getQuery().setUseCache(parseBoolean(params.get("useCache")));
+                    break;
+                case MAX_RESULT_ROW:
+                    kibanaProperty.getQuery().setMaxResultRow(parseValue(params.get("maxResultRow")).intValue());
                     break;
                 case ROUND_ABLE_MIN_PERIOD:
                     kibanaProperty.getProxy().setRoundAbleMinPeriod(parseValue(params.get("roundAbleMinPeriod")));
