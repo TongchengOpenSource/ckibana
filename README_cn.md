@@ -7,6 +7,7 @@
 ---
 
 - [CKibana最佳实践](https://mp.weixin.qq.com/s/T3tKYn6zE464bqTkoIa3dg)
+- [ClickHouse 可视化构建](https://warmdust.github.io/2024/07/20/005/)
 
 ## Introduce
 
