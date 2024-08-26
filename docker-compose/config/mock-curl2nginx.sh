@@ -13,5 +13,5 @@ while true; do
   if [ $((random_num % 10)) -eq 0 ]; then
       curl  "http://${HOST}/400"
   fi
-  # sleep $DELAY
+  sleep $DELAY
 done
