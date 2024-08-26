@@ -14,7 +14,8 @@
 
 ---
 
-- [CKibana Best Practices](https://mp.weixin.qq.com/s/T3tKYn6zE464bqTkoIa3dg)
+- [CKibana Best Practices](https://mp.weixin.qq.com/s/T3tKYn6zE464bqTkoIa3dg
+- [kibana-visualization](https://warmdust.github.io/2024/07/20/005/)
 
 ## Introduce
 
