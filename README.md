@@ -14,7 +14,7 @@
 
 ---
 
-- [CKibana Best Practices](https://mp.weixin.qq.com/s/T3tKYn6zE464bqTkoIa3dg)
+- [CKibana Best Practices](https://tongchengopensource.github.io/ckibana-docs/en/blog/build-logging-platform-with-native-kibana-and-clickhouse/)
 - [kibana-visualization](https://warmdust.github.io/2024/07/20/005/)
 
 ## Introduce
