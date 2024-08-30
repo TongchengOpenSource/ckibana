@@ -25,6 +25,8 @@ A typical use case is when nginx log storage is migrated from ElasticSearch to C
 
 It is recommended to use version 6.x of Kibana. This version is used internally and has been more thoroughly tested.
 
+![tlb.gif](https://oss.17usoft.com/infra-github/ckibana/tlb.gif)
+
 ## Features
 
 - Version Support: Compatible with ElasticSearch and Kibana versions 6.x, 7.x.
