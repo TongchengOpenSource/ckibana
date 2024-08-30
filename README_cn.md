@@ -17,6 +17,8 @@ CKibana是一个为了能够在原生kibana上直接使用ElasticSearch语法查
 
 推荐使用6.x的kibana版本,内部都是使用的该版本,测试的会更充分一点。
 
+![tlb.gif](img/tlb.gif)
+
 ## Features
 
 - 版本支持: 兼容ElasticSearch跟kibana 6.x、7.x 版本
