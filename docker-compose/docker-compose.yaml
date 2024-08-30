@@ -14,7 +14,7 @@ services:
 
 
   ckibana:
-    image: docker.io/ting001/ckibana:1.0.5
+    image: docker.io/ting001/ckibana:1.0.6
     hostname: ckibana
     container_name: ckibana
     restart: always
