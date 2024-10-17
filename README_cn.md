@@ -80,7 +80,7 @@ java version "17.0.5"
 
 **1）建库、建表**
 
-在ck中初始化库、表结构，可以参考[api-docs](https://tongchengopensource.github.io/ckibana-docs/zh/api-docs) 建表详解部分
+在ck中初始化库、表结构，可以参考[api-docs](https://tongchengopensource.github.io/ckibana-docs/zh/docs/api-docs) 建表详解部分
 
 **2）启动ckibana**
 
