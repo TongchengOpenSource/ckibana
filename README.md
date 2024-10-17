@@ -94,7 +94,7 @@ The proxy service depends on the **ES, CK, and Kibana services**, which need to 
 
 **1）Create a database and a table**
 
-To initialize database and table structures in ClickHouse, please refer to:[api-docs](https://tongchengopensource.github.io/ckibana-docs/en/api-docs) Detailed explanation of creating a table
+To initialize database and table structures in ClickHouse, please refer to:[api-docs](https://tongchengopensource.github.io/ckibana-docs/en/docs/api-docs) Detailed explanation of creating a table
 
 **2）Start CKibana**
 
