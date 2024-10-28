@@ -29,7 +29,7 @@ It is recommended to use version 6.x of Kibana. This version is used internally 
 
 ## Features
 
-- Version Support: Compatible with ElasticSearch and Kibana versions 6.x, 7.x.
+- Version Support: Compatible with ElasticSearch and Kibana versions 6.x, 7.x（<=7.1.1）.
 - Syntax Support: Compatible with common ElasticSearch syntax (note: ip_range and date_range can only be queried using the querystring syntax in the search box).
 - Sampling Function: For queries with hit results exceeding the threshold, it supports dynamic calculation of sampling and result restoration to improve query performance and ensure that the basic trend of the chart is consistent with the real data trend (the larger the flow control threshold, the closer the real chart trend is).
 - Cache Function: Supports using ElasticSearch to cache results to improve the performance of repeated queries.
