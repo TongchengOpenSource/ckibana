@@ -24,6 +24,7 @@ import com.ly.ckibana.model.exception.IndexNotFoundException;
 import com.ly.ckibana.model.exception.InvalidClusterInfoException;
 import com.ly.ckibana.model.exception.InvalidIndexSettingsException;
 import com.ly.ckibana.model.request.RequestContext;
+import com.ly.ckibana.model.request.RetryableRequest;
 import com.ly.ckibana.util.JSONUtils;
 import com.ly.ckibana.util.Utils;
 import org.apache.commons.io.IOUtils;
@@ -44,16 +45,27 @@ import org.springframework.http.HttpMethod;
 import org.springframework.util.CollectionUtils;
 
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
 
 public class EsClientUtil {
     public static final Logger log = LoggerFactory.getLogger(EsClientUtil.class);
-
     protected static final Header[] BASE_HEADER = new Header[]{new BasicHeader("Content-Type", "application/json")};
+    private static final int MAX_RETRIES = 3;
+    private static final long RETRY_DELAY_MS = 500;
+    private static final Set<String> DEFAULT_RETRY_ERROR_MESSAGE;
+
+    static {
+        DEFAULT_RETRY_ERROR_MESSAGE = new HashSet<>();
+        DEFAULT_RETRY_ERROR_MESSAGE.add("Connection reset");
+    }
 
     /**
      * 不指定则采用用户restclient.
@@ -95,19 +107,19 @@ public class EsClientUtil {
         Request request = new Request(method, uri);
         request.setEntity(entity);
         request.setOptions(buildRequestOptions(basicHeaders));
-        Response result;
         if (params != null) {
             request.addParameters(params);
         }
-        try {
-            result = readClient.performRequest(request);
-        } catch (ResponseException ex) {
-            result = ex.getResponse();
-        } catch (Exception ex) {
-            log.error("performRequest error, uri={}, params={}", uri, JSONUtils.serialize(params), ex);
-            throw ex;
-        }
-        return result;
+        return retry(() -> {
+            try {
+                return readClient.performRequest(request);
+            } catch (ResponseException ex) {
+                return ex.getResponse();
+            } catch (Exception ex) {
+                log.error("performRequest error, uri={}, params={}", uri, JSONUtils.serialize(params), ex);
+                throw ex;
+            }
+        }, uri, MAX_RETRIES, RETRY_DELAY_MS, DEFAULT_RETRY_ERROR_MESSAGE);
     }
 
     private static RequestOptions buildRequestOptions(Header[] basicHeaders) {
@@ -406,4 +418,42 @@ public class EsClientUtil {
         // 设置code码
         httpServletResponse.setStatus(esResponse.getStatusLine().getStatusCode());
     };
+
+    /**
+     * @param requestTask          请求任务
+     * @param uri                  请求uri
+     * @param maxRetries           最大重试次数
+     * @param retryDelayMs         重试延迟
+     * @param retryErrorMessageSet 重试错误集合
+     * @param <T>                  重试任务function
+     * @return 相应结果
+     * @throws Exception 响应异常
+     */
+    public static <T> T retry(
+            RetryableRequest<T> requestTask,
+            String uri,
+            int maxRetries,
+            long retryDelayMs,
+            Set<String> retryErrorMessageSet
+    ) throws Exception {
+        for (int attempt = 1; attempt <= maxRetries; attempt++) {
+            try {
+                if (log.isDebugEnabled()) {
+                    log.info("request uri: {}, attempt times: {}", uri, attempt);
+                }
+                return requestTask.execute();
+            } catch (IOException ex) {
+                if (ex.getMessage() != null && retryErrorMessageSet.contains(ex.getMessage())) {
+                    log.warn("[retrying] uri: {}, retry times: {}/{}, reason: {}", uri, attempt, maxRetries, ex.getMessage());
+                    if (attempt >= maxRetries) {
+                        throw ex;
+                    }
+                    TimeUnit.MILLISECONDS.sleep(retryDelayMs);
+                } else {
+                    throw ex;
+                }
+            }
+        }
+        throw new IllegalStateException("[retry] encountered an unexpected failure.");
+    }
 }
