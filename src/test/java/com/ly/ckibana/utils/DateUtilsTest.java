@@ -95,5 +95,18 @@ public class DateUtilsTest {
         Assert.assertEquals(formattedShanghaiTime, "2024-07-12T16:46:21.659Z");
     }
 
+    @Test
+    public void notRegularDateTimeMSFormatValidTest() {
+        String dataTime1 = "2024-07-12'T'08:46:21.659";
+        String dataTime2 = "2024-07-12T08:46:21.659";
+        String dataTime3 = "2024-07-12 08:46:21";
+        String dataTime4 = "2024-07-12";
+        String dataTime5 = "2024-07-12 08:46:21.000";
+        Assert.assertFalse(DateUtils.isNotRegularDateTimeMSFormatValid(dataTime1));
+        Assert.assertFalse(DateUtils.isNotRegularDateTimeMSFormatValid(dataTime2));
+        Assert.assertFalse(DateUtils.isNotRegularDateTimeMSFormatValid(dataTime3));
+        Assert.assertFalse(DateUtils.isNotRegularDateTimeMSFormatValid(dataTime4));
+        Assert.assertTrue(DateUtils.isNotRegularDateTimeMSFormatValid(dataTime5));
+    }
 
 }

@@ -40,6 +40,8 @@ public class DateUtils {
 
     private static final DateTimeFormatter DEFAULT_DATETIME_FORMATTER = DateTimeFormatter.ofPattern(Constants.DATETIME_FORMAT_DEFAULT).localizedBy(Locale.getDefault());
 
+    private static final DateTimeFormatter DEFAULT_DATETIME_WITH_MS_FORMATTER = DateTimeFormatter.ofPattern(Constants.DATETIME_FORMAT_YYYY_MM_DD_HH_MM_SS_SSS).localizedBy(Locale.getDefault());
+
     private static final DateTimeFormatter DEFAULT_DATE_FORMATTER = DateTimeFormatter.ofPattern(Constants.DATE_FORMAT_DEFAULT).localizedBy(Locale.getDefault());
 
     private static final List<DateTimeFormatter> DEFAULT_DATE_FORMATTER_LIST = Constants.EXTENDED_DATETIME_FORMAT_LIST
@@ -138,6 +140,10 @@ public class DateUtils {
      */
     public static Long toEpochMilli(Object dateTime) {
         if (dateTime instanceof String dateTimeStr) {
+            // 非标准化ms时间戳，不走UTC方式，兼容
+            if (isNotRegularDateTimeMSFormatValid(dateTimeStr)) {
+                return toEpochMilli(dateTimeStr, DEFAULT_DATETIME_WITH_MS_FORMATTER);
+            }
             for (DateTimeFormatter formatter : DEFAULT_DATE_FORMATTER_LIST) {
                 if (isDateFormatValid(dateTimeStr, formatter)) {
                     return toEpochMilliWithUTC(dateTimeStr, formatter);
@@ -187,6 +193,15 @@ public class DateUtils {
     public static boolean isDateFormatValid(String input, DateTimeFormatter formatter) {
         try {
             LocalDateTime.parse(input, formatter);
+            return true;
+        } catch (DateTimeParseException e) {
+            return false;
+        }
+    }
+
+    public static boolean isNotRegularDateTimeMSFormatValid(String input) {
+        try {
+            LocalDateTime.parse(input, DEFAULT_DATETIME_WITH_MS_FORMATTER);
             return true;
         } catch (DateTimeParseException e) {
             return false;
