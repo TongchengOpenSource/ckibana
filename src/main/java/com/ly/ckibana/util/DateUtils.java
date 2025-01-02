@@ -30,9 +30,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
-import static com.ly.ckibana.constants.Constants.DATETIME_FORMAT_DEFAULT;
-import static com.ly.ckibana.constants.Constants.DATETIME_FORMAT_YYYY_MM_DD_HH_MM_SS_SSS;
-
 @Slf4j
 public class DateUtils {
     public static final ZoneId ZONE_LOCAL = ZoneId.systemDefault();
@@ -41,9 +38,9 @@ public class DateUtils {
 
     private static final DateTimeFormatter DATETIME_FORMATTER_FOR_GMT_WITH_8H = DateTimeFormatter.ofPattern(Constants.DATETIME_FORMAT_GMT_PLUS_EIGHT_HOUR).localizedBy(Locale.getDefault());
 
-    private static final DateTimeFormatter DEFAULT_DATETIME_FORMATTER = DateTimeFormatter.ofPattern(DATETIME_FORMAT_DEFAULT).localizedBy(Locale.getDefault());
+    private static final DateTimeFormatter DEFAULT_DATETIME_FORMATTER = DateTimeFormatter.ofPattern(Constants.DATETIME_FORMAT_DEFAULT).localizedBy(Locale.getDefault());
 
-    private static final DateTimeFormatter DEFAULT_DATETIME_WITH_MS_FORMATTER = DateTimeFormatter.ofPattern(DATETIME_FORMAT_YYYY_MM_DD_HH_MM_SS_SSS).localizedBy(Locale.getDefault());
+    private static final DateTimeFormatter DEFAULT_DATETIME_WITH_MS_FORMATTER = DateTimeFormatter.ofPattern(Constants.DATETIME_FORMAT_YYYY_MM_DD_HH_MM_SS_SSS).localizedBy(Locale.getDefault());
 
     private static final DateTimeFormatter DEFAULT_DATE_FORMATTER = DateTimeFormatter.ofPattern(Constants.DATE_FORMAT_DEFAULT).localizedBy(Locale.getDefault());
 
