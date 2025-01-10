@@ -48,16 +48,4 @@ public enum IPType {
         this.ckFiledFunction = ckFiledFunction;
         this.ckValueFunction = ckValueFunction;
     }
-
-    public String getCkType() {
-        return ckType;
-    }
-    
-    public String getCkFiledFunction() {
-        return ckFiledFunction;
-    }
-
-    public String getCkValueFunction() {
-        return ckValueFunction;
-    }
 }
