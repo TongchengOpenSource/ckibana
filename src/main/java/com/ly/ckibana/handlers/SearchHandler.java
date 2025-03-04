@@ -16,6 +16,7 @@
 package com.ly.ckibana.handlers;
 
 import com.alibaba.fastjson2.JSONObject;
+import com.ly.ckibana.configure.config.ProxyConfigLoader;
 import com.ly.ckibana.configure.web.route.HttpRoute;
 import com.ly.ckibana.constants.Constants;
 import com.ly.ckibana.model.compute.aggregation.bucket.TermsBucket;
@@ -28,6 +29,7 @@ import com.ly.ckibana.model.request.RequestContext;
 import com.ly.ckibana.model.response.Response;
 import com.ly.ckibana.parser.ParamParser;
 import com.ly.ckibana.parser.ResultParser;
+import com.ly.ckibana.parser.SearchParser;
 import com.ly.ckibana.service.CkService;
 import com.ly.ckibana.service.EsClientUtil;
 import com.ly.ckibana.strategy.aggs.Aggregation;
@@ -37,12 +39,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @SuppressWarnings("rawtypes")
 @Component
@@ -56,6 +53,10 @@ public class SearchHandler extends BaseHandler {
 
     @Resource
     private ResultParser resultParseService;
+    @Resource
+    private SearchParser searchParser;
+    @Resource
+    private ProxyConfigLoader proxyConfigLoader;
 
     @Override
     public List<HttpRoute> routes() {
@@ -77,42 +78,52 @@ public class SearchHandler extends BaseHandler {
         if (!index.equals(Constants.MATCH_ALL) && !context.isCkIndex()) {
             throw new FallbackToEsException();
         }
-        JSONObject searchQuery = JSONUtils.deserialize(context.getRequestInfo().getRequestBody(), JSONObject.class);
-        IndexPattern indexPattern = paramParser.buildIndexPattern(context);
-        CkRequestContext ckRequestContext = new CkRequestContext(context.getClientIp(), indexPattern, paramParser.getMaxResultRow());
-        ckRequestContext.setTableName(index);
-        List<Aggregation> aggregation = paramParser.parseAggs(Constants.AGG_INIT_DEPTH, ckRequestContext, searchQuery);
 
+        IndexPattern indexPattern = paramParser.buildIndexPattern(context);
+        List<Aggregation> aggregation = searchParser.parseAggregations(context, indexPattern, index);
         // kibana 创建 index pattern 时，需要查询索引列表，此时需要将ck创建的索引表和es原生索引列表聚合返回给 kibana
         if (isSearchIndexList(aggregation)) {
-            Response esResponse = JSONObject.parseObject(EsClientUtil.doRequest(context), Response.class);
-            Response ckResponse = searchMatchedIndexPattern(context, context.getProxyConfig(), aggregation);
-            // merge index list
-            Map<String, Map<String, Object>> aggregations = esResponse.getAggregations();
-            if (aggregations == null) {
-                aggregations = new HashMap<>();
-            }
-            esResponse.setAggregations(aggregations);
-
-            Map<String, Object> indices = aggregations.getOrDefault("indices", new HashMap<>());
-            aggregations.put("indices", indices);
-
-            Object buckets = indices.get("buckets");
-            if (buckets == null) {
-                buckets = new ArrayList<>();
-            }
-            indices.put("buckets", buckets);
-            Object ck = Optional.of(ckResponse.getAggregations()).map(m -> m.get("indices"))
-                    .map(m -> m.get("buckets")).orElse(null);
-
-            if (buckets instanceof List esIndices && ck instanceof List ckIndices) {
-                esIndices.addAll(ckIndices);
-            }
-
-            return JSONUtils.serialize(esResponse);
+            return searchIndexList(context, aggregation);
         } else {
-            throw new FallbackToEsException();
+            return searchParser.execute(context, index, indexPattern,false);
         }
+    }
+
+
+    /**
+     * 查询索引列表
+     * kibana 创建 index pattern 时，需要查询索引列表，此时需要将ck创建的索引表和es原生索引列表聚合返回给 kibana
+     *
+     * @param context
+     * @param aggregation
+     * @return
+     * @throws Exception
+     */
+    private String searchIndexList(RequestContext context, List<Aggregation> aggregation) throws Exception {
+        Response esResponse = JSONObject.parseObject(EsClientUtil.doRequest(context), Response.class);
+        Response ckResponse = searchMatchedIndexPattern(context, context.getProxyConfig(), aggregation);
+        // merge index list
+        Map<String, Map<String, Object>> aggregations = esResponse.getAggregations();
+        if (aggregations == null) {
+            aggregations = new HashMap<>();
+        }
+        esResponse.setAggregations(aggregations);
+
+        Map<String, Object> indices = aggregations.getOrDefault("indices", new HashMap<>());
+        aggregations.put("indices", indices);
+
+        Object buckets = indices.get("buckets");
+        if (buckets == null) {
+            buckets = new ArrayList<>();
+        }
+        indices.put("buckets", buckets);
+        Object ck = Optional.of(ckResponse.getAggregations()).map(m -> m.get("indices"))
+                .map(m -> m.get("buckets")).orElse(null);
+
+        if (buckets instanceof List esIndices && ck instanceof List ckIndices) {
+            esIndices.addAll(ckIndices);
+        }
+        return JSONUtils.serialize(esResponse);
     }
 
     /**

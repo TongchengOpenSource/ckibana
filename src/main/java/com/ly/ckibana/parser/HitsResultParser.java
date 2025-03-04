@@ -44,7 +44,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 封装结果类.
+ * 封装明细hits结果类.
  */
 @Slf4j
 @Service
