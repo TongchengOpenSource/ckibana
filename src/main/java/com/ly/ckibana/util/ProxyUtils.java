@@ -276,7 +276,7 @@ public class ProxyUtils {
         String ckFieldName = orgRange.getCkFieldName();
         String ckFieldType = orgRange.getCkFieldType();
         Range rangeConverted = new Range(ckFieldName, orgRange.getCkFieldType(), orgRange.getHigh(), orgRange.getLow());
-        if (isTimeField && !isNumeric(orgRange.getCkFieldType()) ) {
+        if (isTimeField && !isNumeric(orgRange.getCkFieldType())) {
             //时间字段且为非数值类型
             rangeConverted.setCkFieldName(ckFieldName);
             rangeConverted.setHigh(generateTimeFieldSqlWithFormatDateTime64ZoneShangHai(orgRange.getHigh(), ckFieldType));
@@ -455,5 +455,15 @@ public class ProxyUtils {
             return originalIndex.substring(originalIndex.indexOf(Constants.QUERY_CLUSTER_SPLIT) + 1);
         }
         return originalIndex;
+    }
+
+    /**
+     * 是否为创建index pattern的初始*请求
+     *
+     * @param index
+     * @return
+     */
+    public static boolean isWildcardIndexPattern(String index) {
+        return index.equals(Constants.MATCH_ALL);
     }
 }

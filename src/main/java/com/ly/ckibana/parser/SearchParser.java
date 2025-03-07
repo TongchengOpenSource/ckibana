@@ -89,7 +89,9 @@ public class SearchParser {
         JSONObject searchQuery = JSONUtils.deserialize(context.getRequestInfo().getRequestBody(), JSONObject.class);
         CkRequestContext ckRequestContext = new CkRequestContext(context.getClientIp(), indexPattern, paramParser.getMaxResultRow());
         ckRequestContext.setTableName(index);
-        ckRequestContext.setColumns(paramParser.queryTableColumns(proxyConfigLoader.getConfig().getCkDatasource(), ckRequestContext.getTableName()));
+        if (!ProxyUtils.isWildcardIndexPattern(index)) {
+            ckRequestContext.setColumns(paramParser.queryTableColumns(proxyConfigLoader.getConfig().getCkDatasource(), ckRequestContext.getTableName()));
+        }
         return paramParser.parseAggs(Constants.AGG_INIT_DEPTH, ckRequestContext, searchQuery);
     }
 }

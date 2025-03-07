@@ -34,6 +34,7 @@ import com.ly.ckibana.service.CkService;
 import com.ly.ckibana.service.EsClientUtil;
 import com.ly.ckibana.strategy.aggs.Aggregation;
 import com.ly.ckibana.util.JSONUtils;
+import com.ly.ckibana.util.ProxyUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Component;
@@ -75,7 +76,7 @@ public class SearchHandler extends BaseHandler {
         if (StringUtils.isEmpty(index)) {
             throw new FallbackToEsException();
         }
-        if (!index.equals(Constants.MATCH_ALL) && !context.isCkIndex()) {
+        if (!ProxyUtils.isWildcardIndexPattern(index) && !context.isCkIndex()) {
             throw new FallbackToEsException();
         }
 
