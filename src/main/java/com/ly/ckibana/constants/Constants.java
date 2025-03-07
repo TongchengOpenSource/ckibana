@@ -44,6 +44,11 @@ public class Constants {
     public static final String INDEX_NAME_KEY = "index";
 
     public static final String KEY_NAME = "key";
+    /**
+     * 默认时间字段
+     */
+    public static final String DEFAULT_TIME_FILED_NAME = "@timestamp";
+
 
     /**
      * es查询参数关键字.

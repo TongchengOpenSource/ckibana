@@ -15,6 +15,7 @@
  */
 package com.ly.ckibana.model.property;
 
+import com.ly.ckibana.constants.Constants;
 import lombok.Data;
 
 import java.util.ArrayList;
@@ -33,7 +34,7 @@ public class KibanaItemProperty {
      * 超过ROUND_ABLE_MIN_PERIOD 支持round，单位ms.
      */
     private long roundAbleMinPeriod = 120000;
-    
+
     /**
      * round值，单位s.
      */
@@ -43,6 +44,11 @@ public class KibanaItemProperty {
      * 支持的时间周期.
      */
     private long maxTimeRange;
+
+    /**
+     * 默认时间字段
+     */
+    private String defaultTimeFieldName= Constants.DEFAULT_TIME_FILED_NAME;
 
     private List<String> blackIndexList = new ArrayList<>();
 

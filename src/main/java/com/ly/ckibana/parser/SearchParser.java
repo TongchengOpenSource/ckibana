@@ -3,7 +3,6 @@ package com.ly.ckibana.parser;
 import com.alibaba.fastjson2.JSONObject;
 import com.ly.ckibana.configure.config.ProxyConfigLoader;
 import com.ly.ckibana.constants.Constants;
-import com.ly.ckibana.constants.TimeConstants;
 import com.ly.ckibana.model.compute.indexpattern.IndexPattern;
 import com.ly.ckibana.model.exception.UiException;
 import com.ly.ckibana.model.property.MetadataConfigProperty;
@@ -65,7 +64,8 @@ public class SearchParser {
         CkRequestContext ckRequestContext = new CkRequestContext(context.getClientIp(), indexPattern, paramParser.getMaxResultRow());
         JSONObject searchQuery = JSONUtils.deserialize(context.getRequestInfo().getRequestBody(), JSONObject.class);
         Map<String, Map<String, String>> tableColumnsCache = new HashMap<>();
-        String timeField = StringUtils.defaultIfBlank(EsClientUtil.getIndexPatternMeta(context.getProxyConfig().getRestClient(), metadataConfigProperty.getHeaders()).get(index), TimeConstants.DEFAULT_TIME_FILED);
+        String timeField = StringUtils.defaultIfBlank(EsClientUtil.getIndexPatternMeta(context.getProxyConfig().getRestClient(), metadataConfigProperty.getHeaders()).get(index),
+                context.getProxyConfig().getKibanaItemProperty().getDefaultTimeFieldName());
         QueryProperty queryProperty = proxyConfigLoader.getKibanaProperty().getQuery();
 
         try {
