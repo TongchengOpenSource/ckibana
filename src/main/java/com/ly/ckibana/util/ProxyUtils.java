@@ -30,11 +30,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpStatus;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Slf4j
 public class ProxyUtils {
@@ -196,9 +192,10 @@ public class ProxyUtils {
     public static boolean isDate(String type) {
         return parseCkBaseType(type).startsWith("Date");
     }
-    
+
     /**
      * 构建kibana exception.
+     *
      * @param error 异常说明
      * @return Response
      */
@@ -228,8 +225,9 @@ public class ProxyUtils {
 
     /**
      * 构建kibana exception.
+     *
      * @param httpStatus 状态码
-     * @param error 异常说明
+     * @param error      异常说明
      * @return Response
      */
     public static Response newKibanaException(HttpStatus httpStatus, String error) {
@@ -244,6 +242,7 @@ public class ProxyUtils {
         result.setError(searchError);
         return result;
     }
+
     public static String getErrorResponse(Exception e) {
         return getErrorResponse(e.getMessage());
     }
@@ -277,7 +276,7 @@ public class ProxyUtils {
         String ckFieldName = orgRange.getCkFieldName();
         String ckFieldType = orgRange.getCkFieldType();
         Range rangeConverted = new Range(ckFieldName, orgRange.getCkFieldType(), orgRange.getHigh(), orgRange.getLow());
-        if (isTimeField && !isNumeric(orgRange.getCkFieldType())) {
+        if (isTimeField && !isNumeric(orgRange.getCkFieldType()) ) {
             //时间字段且为非数值类型
             rangeConverted.setCkFieldName(ckFieldName);
             rangeConverted.setHigh(generateTimeFieldSqlWithFormatDateTime64ZoneShangHai(orgRange.getHigh(), ckFieldType));
@@ -335,7 +334,7 @@ public class ProxyUtils {
             result = "ip";
         } else if ("_source".equals(ckName)) {
             result = "_source";
-        } else if (isDate(ckType)  || isTimeFieldOption(ckName, ckType, isForSelectTimeField)) {
+        } else if (isDate(ckType) || isTimeFieldOption(ckName, ckType, isForSelectTimeField)) {
             result = "date";
         } else if (isString(ckType)) {
             result = "string";

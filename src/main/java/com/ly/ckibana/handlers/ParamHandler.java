@@ -18,6 +18,7 @@ package com.ly.ckibana.handlers;
 import com.alibaba.fastjson2.JSON;
 import com.ly.ckibana.configure.config.ProxyConfigLoader;
 import com.ly.ckibana.configure.web.route.HttpRoute;
+import com.ly.ckibana.constants.Constants;
 import com.ly.ckibana.model.property.CkProperty;
 import com.ly.ckibana.model.property.EsProperty;
 import com.ly.ckibana.model.property.KibanaProperty;
@@ -39,36 +40,39 @@ import java.util.Map;
 
 @Component
 public class ParamHandler extends BaseHandler {
-    
+
     @Resource
     private ProxyConfigLoader proxyConfigLoader;
-    
+
     private static final String CK = "/config/updateCk";
-    
+
     private static final String ES = "/config/updateEs";
-    
+
     private static final String WHITE_INDEX_LIST = "/config/updateWhiteIndexList";
-    
+
     private static final String BLACK_INDEX_LIST = "/config/updateBlackIndexList";
-    
+
     private static final String SAMPLE_LIST = "/config/updateSampleIndexList";
-    
+
     private static final String SAMPLE_MAX_THRESHOLD = "/config/updateSampleCountMaxThreshold";
-    
+
     private static final String USE_CACHE = "/config/updateUseCache";
-    
+
     private static final String MAX_RESULT_ROW = "/config/updateMaxResultRow";
-    
+
     private static final String ROUND_ABLE_MIN_PERIOD = "/config/updateRoundAbleMinPeriod";
-    
+
     private static final String ROUND = "/config/updateRound";
-    
+
     private static final String MAX_TIME_RANGE = "/config/updateMaxTimeRange";
-    
+
     private static final String ENABLE_MONITORING = "/config/updateEnableMonitoring";
-    
+
     private static final String MSEARCH_THREAD_POOL_CORE_SIZE = "/config/updateMsearchThreadPoolCoreSize";
-    
+
+    private static final String UPDATE_DEFAULT_TIME_FIELD = "/config/updateDefaultTimeField";
+
+
     @Override
     public List<HttpRoute> routes() {
         return List.of(
@@ -84,23 +88,24 @@ public class ParamHandler extends BaseHandler {
                 HttpRoute.newRoute().path(ROUND).methods(HttpMethod.POST),
                 HttpRoute.newRoute().path(MAX_TIME_RANGE).methods(HttpMethod.POST),
                 HttpRoute.newRoute().path(ENABLE_MONITORING).methods(HttpMethod.POST),
-                HttpRoute.newRoute().path(MSEARCH_THREAD_POOL_CORE_SIZE).methods(HttpMethod.POST)
+                HttpRoute.newRoute().path(MSEARCH_THREAD_POOL_CORE_SIZE).methods(HttpMethod.POST),
+                HttpRoute.newRoute().path(UPDATE_DEFAULT_TIME_FIELD).methods(HttpMethod.POST)
         );
     }
-    
+
     @Override
     public String doHandle(RequestContext context) {
-        
+
         try {
             Map<String, String> params = context.getRequestInfo().getParams();
             if (params.isEmpty()) {
                 return JSONUtils.serialize(Map.of("responses", "未配置参数"));
             }
-    
+
             KibanaProperty kibanaProperty = proxyConfigLoader.getKibanaProperty();
             boolean updateCk = false;
             boolean updateEs = false;
-    
+
             switch (context.getRequestUrl()) {
                 case CK:
                     updateCk = updateCK(kibanaProperty, params);
@@ -135,6 +140,9 @@ public class ParamHandler extends BaseHandler {
                 case MAX_TIME_RANGE:
                     kibanaProperty.getProxy().setMaxTimeRange(parseValue(params.get("maxTimeRange")));
                     break;
+                case UPDATE_DEFAULT_TIME_FIELD:
+                    kibanaProperty.getProxy().setDefaultTimeFieldName(params.getOrDefault("defaultTimeFieldName", Constants.DEFAULT_TIME_FILED_NAME));
+                    break;
                 case ENABLE_MONITORING:
                     kibanaProperty.getProxy().setEnableMonitoring(parseBoolean(params.get("enableMonitoring")));
                     break;
@@ -144,7 +152,7 @@ public class ParamHandler extends BaseHandler {
                 default:
                     return "";
             }
-    
+
             String body = proxyConfigLoader.getYaml().dumpAs(kibanaProperty, Tag.MAP, DumperOptions.FlowStyle.BLOCK);
             String response = EsClientUtil.saveOne(proxyConfigLoader.getMetadataRestClient(), proxyConfigLoader.getSettingsIndexName(),
                     "kibana",
@@ -166,7 +174,7 @@ public class ParamHandler extends BaseHandler {
             return ProxyUtils.getErrorResponse(e);
         }
     }
-    
+
     private boolean updateCK(KibanaProperty kibanaProperty, Map<String, String> params) {
         String jsonStr = JSON.toJSONString(params);
         CkProperty ckProperty = JSON.parseObject(jsonStr, CkProperty.class);
@@ -179,7 +187,7 @@ public class ParamHandler extends BaseHandler {
         kibanaProperty.getProxy().setCk(ckProperty);
         return true;
     }
-    
+
     private boolean updateES(KibanaProperty kibanaProperty, Map<String, String> params) {
         String host = params.get("host");
         String headersString = params.get("headers");
@@ -188,16 +196,16 @@ public class ParamHandler extends BaseHandler {
         }
         Map<String, String> headers = new HashMap<>();
         String[] parts = headersString.split(",");
-        for (String part: parts) {
+        for (String part : parts) {
             String[] keyValue = part.split(":");
             headers.put(keyValue[0], keyValue[1]);
         }
-        
+
         EsProperty esProperty = new EsProperty(host, headers);
         kibanaProperty.getProxy().setEs(esProperty);
         return true;
     }
-    
+
     private List<String> parseList(Map<String, String> params) {
         String listParam = params.get("list");
         if (StringUtils.isBlank(listParam)) {
@@ -206,14 +214,14 @@ public class ParamHandler extends BaseHandler {
         String[] parts = listParam.split(",");
         return Arrays.asList(parts);
     }
-    
+
     private Long parseValue(String value) {
         if (StringUtils.isBlank(value)) {
             throw new IllegalArgumentException("invalid parameter");
         }
         return Long.parseLong(value);
     }
-    
+
     private Boolean parseBoolean(String value) {
         if (StringUtils.isBlank(value)) {
             throw new IllegalArgumentException("invalid parameter");
