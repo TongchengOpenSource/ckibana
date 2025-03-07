@@ -18,6 +18,7 @@ package com.ly.ckibana.strategy.clause;
 import com.alibaba.fastjson2.JSONObject;
 import com.google.common.base.Strings;
 import com.ly.ckibana.constants.Constants;
+import com.ly.ckibana.constants.N9eConstants;
 import com.ly.ckibana.constants.SqlConstants;
 import com.ly.ckibana.model.compute.QueryClause;
 import com.ly.ckibana.model.compute.Range;
@@ -60,10 +61,11 @@ public class RangeClauseStrategy implements ClauseStrategy {
             if (isTimeFieldValueString(rangFieldName, indexPattern, value)) {
                 value = DateUtils.toEpochMilli(value);
             }
-            if (SqlConstants.LT_NAME.equals(each) || SqlConstants.LTE_NAME.equals(each)) {
+            //统一包含等于
+            if (isRangeHighField(each)) {
                 range.setLessThanEq(SqlConstants.LTE_NAME.equals(each));
                 range.setHigh(value);
-            } else if (SqlConstants.GT_NAME.equals(each) || SqlConstants.GTE_NAME.equals(each)) {
+            } else if (isRangeLowField(each)) {
                 range.setMoreThanEq(SqlConstants.GTE_NAME.equals(each));
                 range.setLow(value);
             }
@@ -78,11 +80,20 @@ public class RangeClauseStrategy implements ClauseStrategy {
         return result;
     }
 
+    private boolean isRangeLowField(String each) {
+        return SqlConstants.GT_NAME.equals(each) || SqlConstants.GTE_NAME.equals(each) || N9eConstants.RANGE_LOW_NAME.equals(each);
+    }
+
+    private boolean isRangeHighField(String each) {
+        return SqlConstants.LT_NAME.equals(each) || SqlConstants.LTE_NAME.equals(each) || N9eConstants.RANGE_HIGH_NAME.equals(each);
+    }
+
     /**
      * 是否为时间字段range,且参数格式化为字符类型。支持utc时间和gmt两种时间格式解析.
+     *
      * @param rangFieldName 时间字段
-     * @param indexPattern 索引模式
-     * @param value 参数值
+     * @param indexPattern  索引模式
+     * @param value         参数值
      * @return 是否为时间字段range
      */
     private boolean isTimeFieldValueString(String rangFieldName, IndexPattern indexPattern, Object value) {

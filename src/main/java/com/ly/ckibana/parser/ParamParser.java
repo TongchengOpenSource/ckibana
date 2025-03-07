@@ -19,6 +19,7 @@ import com.alibaba.fastjson2.JSONObject;
 import com.google.common.base.Strings;
 import com.ly.ckibana.configure.config.ProxyConfigLoader;
 import com.ly.ckibana.constants.Constants;
+import com.ly.ckibana.constants.N9eConstants;
 import com.ly.ckibana.model.compute.Range;
 import com.ly.ckibana.model.compute.aggregation.AggsParam;
 import com.ly.ckibana.model.compute.indexpattern.IndexPattern;
@@ -122,20 +123,22 @@ public class ParamParser {
      */
     public List<Aggregation> parseAggs(int depth, CkRequestContext ckRequestContext, JSONObject searchQuery) {
         List<Aggregation> result = null;
-        if (searchQuery.containsKey(Constants.AGGS)) {
+        //不同组件使用不同agg请求名，如kibana 使用aggs,n9e使用aggregations
+        String aggRequestName = searchQuery.containsKey(Constants.AGGS) ? Constants.AGGS : N9eConstants.AGGREGATIONS;
+        if (searchQuery.containsKey(aggRequestName)) {
             result = new ArrayList<>();
-            JSONObject aggs = searchQuery.getJSONObject(Constants.AGGS);
+            JSONObject aggs = searchQuery.getJSONObject(aggRequestName);
             for (String aggsKey : aggs.keySet()) {
                 List<Aggregation> subAggs = null;
                 JSONObject aggsSettings = aggs.getJSONObject(aggsKey);
-                if (aggsSettings.containsKey(Constants.AGGS)) {
+                if (aggsSettings.containsKey(aggRequestName)) {
                     subAggs = parseAggs(depth + 1, ckRequestContext, aggsSettings);
                 }
-                List<Aggregation> currentAggs = doParseAggs(depth, aggsKey, ckRequestContext, aggsSettings, subAggs);
+                List<Aggregation> currentAggs = doParseAggs(aggRequestName, depth, aggsKey, ckRequestContext, aggsSettings, subAggs);
                 if (currentAggs.isEmpty()) {
                     continue;
                 }
-                if (aggsSettings.containsKey(Constants.AGGS) && CollectionUtils.isNotEmpty(subAggs)) {
+                if (aggsSettings.containsKey(aggRequestName) && CollectionUtils.isNotEmpty(subAggs)) {
                     for (Aggregation currentAgg : currentAggs) {
                         currentAgg.setSubAggs(subAggs);
                     }
@@ -149,11 +152,14 @@ public class ParamParser {
     /**
      * 基于agg类型解析出对应的object.
      */
-    private List<Aggregation> doParseAggs(int depth, String aggName, CkRequestContext ckRequestContext, JSONObject parentSetting, List<Aggregation> subAggs) {
+    private List<Aggregation> doParseAggs(String aggRequestName,
+                                          int depth, String aggName,
+                                          CkRequestContext ckRequestContext,
+                                          JSONObject parentSetting, List<Aggregation> subAggs) {
         List<Aggregation> aggs = new ArrayList<>();
         AggsParam baseAggsParam = new AggsParam(aggName, depth, ckRequestContext.getQuery(), ckRequestContext.getColumns(), subAggs);
         for (String each : parentSetting.keySet()) {
-            if (Constants.AGGS.equals(each)) {
+            if (aggRequestName.equals(each)) {
                 continue;
             }
             AggsParam aggsParam = buildAggParam(baseAggsParam, each, parentSetting.getJSONObject(each));

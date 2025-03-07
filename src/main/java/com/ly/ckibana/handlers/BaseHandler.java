@@ -47,12 +47,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 public abstract class BaseHandler implements CorsConfigurationSource {
 
@@ -69,7 +64,8 @@ public abstract class BaseHandler implements CorsConfigurationSource {
 
     public void handle(HttpServletRequest request, HttpServletResponse response) throws Exception {
         @SuppressWarnings("unchecked")
-        Map<String, String> urlParams = (Map<String, String>) Optional.ofNullable(request.getAttribute(PathTrieHandlerMapping.URL_PARAMS)).orElse(Collections.emptyMap());
+        Map<String, String> urlParams =
+                (Map<String, String>) Optional.ofNullable(request.getAttribute(PathTrieHandlerMapping.URL_PARAMS)).orElse(Collections.emptyMap());
         String responseContent;
         RequestContext context = createContext(request, response, urlParams);
         try {
@@ -145,7 +141,7 @@ public abstract class BaseHandler implements CorsConfigurationSource {
         });
         Map<String, String> requestParams = HttpServletUtils.parseHttpRequestParams(request);
         RequestInfo requestInfo = new RequestInfo(requestParams, reqHeaders.values().toArray(new Header[0]), request.getMethod(), request.getRequestURI(), requestBody);
-        String originalIndex = urlParams.get(Constants.INDEX_NAME_KEY);
+        String originalIndex = StringUtils.defaultIfBlank(urlParams.get(Constants.INDEX_NAME_KEY), requestParams.get(Constants.INDEX_NAME_KEY));
         RequestContext context = new RequestContext()
                 .setHttpRequest(request)
                 .setHttpResponse(response)

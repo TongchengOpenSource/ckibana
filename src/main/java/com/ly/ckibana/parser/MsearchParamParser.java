@@ -22,6 +22,7 @@ import com.ly.ckibana.configure.config.ProxyConfigLoader;
 import com.ly.ckibana.constants.Constants;
 import com.ly.ckibana.constants.EsConstants;
 import com.ly.ckibana.constants.SqlConstants;
+import com.ly.ckibana.constants.TimeConstants;
 import com.ly.ckibana.model.compute.indexpattern.IndexPattern;
 import com.ly.ckibana.model.enums.SortType;
 import com.ly.ckibana.model.exception.TimeNotInRangeException;
@@ -79,7 +80,7 @@ public class MsearchParamParser extends ParamParser {
     public void checkTimeInRange(CkRequestContext ckRequestContext) {
         if (!isTimeInRange(ckRequestContext)) {
             throw new TimeNotInRangeException("查询时间跨度太大,目前支持最大查询区间为:"
-                                              + DateUtils.formatDurationWords(proxyConfigLoader.getKibanaProperty().getProxy().getMaxTimeRange()));
+                    + DateUtils.formatDurationWords(proxyConfigLoader.getKibanaProperty().getProxy().getMaxTimeRange()));
         }
     }
 
@@ -231,10 +232,7 @@ public class MsearchParamParser extends ParamParser {
                 }
                 IndexPattern indexPattern = proxyConfig.buildIndexPattern(uiIndex);
                 CkRequestContext ckRequestContext = new CkRequestContext(context.getClientIp(), indexPattern, queryProperty.getMaxResultRow());
-                String timeField = indexPatternMeta.get(uiIndex);
-                if (timeField == null) {
-                    throw new UnKnowTimeFieldException(uiIndex);
-                }
+                String timeField = StringUtils.defaultIfBlank(indexPatternMeta.get(uiIndex), TimeConstants.DEFAULT_TIME_FILED);
                 parseRequestBySearchQuery(tableColumnsCache, searchQuery, timeField, indexPattern, ckRequestContext);
                 if (checkIfNeedSampleByIndex(uiIndex)) {
                     CkRequestContext.SampleParam sampleParam = new SampleParam(Constants.USE_SAMPLE_COUNT_THREASHOLD, queryProperty.getSampleCountMaxThreshold());
