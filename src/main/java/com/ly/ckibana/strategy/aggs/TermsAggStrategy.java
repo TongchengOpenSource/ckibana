@@ -107,10 +107,17 @@ public final class TermsAggStrategy extends Aggregation {
         if (getSize() == null) {
             setSize(10);
         }
-        //若子aggs的有额外group by条件，size条件失效
-        if (isSubAggGroupByEmpty()) {
-            result.limit(getSize());
+        
+        // 对于特殊的聚合组合（terms+子terms, range+子terms），应用 ES API 的 size 限制
+        // 其他复杂嵌套场景仍使用 maxResultRow 保证数据完整性
+        if (isSubAggGroupByEmpty() || isIgnoreSubAggCondition()) {
+            int actualLimit = getSize();
+            if (ckRequestContext.getMaxResultRow() > 0) {
+                actualLimit = Math.min(getSize(), ckRequestContext.getMaxResultRow());
+            }
+            result.limit(actualLimit);
         }
+        
         return result;
     }
 
