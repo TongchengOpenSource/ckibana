@@ -111,7 +111,7 @@ public class QueryStringClauseConverter {
         return String.format(LOGICALOP_RANGE_TEMPLATE_DEFAULT,
                 logicalOp,
                 SqlUtils.getCompareSql(field.getCkName(), includeThreshold ? Constants.Symbol.GTE : Constants.Symbol.GT, from),
-                SqlUtils.getCompareSql(field.getCkName(), includeThreshold ? Constants.Symbol.LTE : Constants.Symbol.GT, to));
+                SqlUtils.getCompareSql(field.getCkName(), includeThreshold ? Constants.Symbol.LTE : Constants.Symbol.LT, to));
     }
     
     /**
