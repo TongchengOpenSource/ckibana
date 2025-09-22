@@ -158,3 +158,8 @@ The group supports both Enterprise WeChat and personal WeChat accounts
 
 [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.html) Copyright (C) Apache Software Foundation
 
+## FOSSA Status
+
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FTongchengOpenSource%2Fckibana.svg?type=large&issueType=license)](https://app.fossa.com/projects/git%2Bgithub.com%2FTongchengOpenSource%2Fckibana?ref=badge_large&issueType=license)
+
+
