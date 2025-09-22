@@ -144,3 +144,7 @@ eg：如果ck表名是table_test，则创建index pattern的名字就是table_te
 
 ## Star ⭐
 [![Stargazers over time](https://starchart.cc/TongchengOpenSource/ckibana.svg?variant=adaptive)](https://starchart.cc/TongchengOpenSource/ckibana)
+
+## FOSSA Status
+
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FTongchengOpenSource%2Fckibana.svg?type=large&issueType=license)](https://app.fossa.com/projects/git%2Bgithub.com%2FTongchengOpenSource%2Fckibana?ref=badge_large&issueType=license)
