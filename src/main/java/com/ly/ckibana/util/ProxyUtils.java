@@ -282,8 +282,11 @@ public class ProxyUtils {
             rangeConverted.setHigh(generateTimeFieldSqlWithFormatDateTime64ZoneShangHai(orgRange.getHigh(), ckFieldType));
             rangeConverted.setLow(generateTimeFieldSqlWithFormatDateTime64ZoneShangHai(orgRange.getLow(), ckFieldType));
         } else {
-            //ip
-            IPType ipType = ProxyUtils.getIpType(orgRange.getCkFieldType(), orgRange.getLow().toString());
+            //ip - 优先使用low值判断IP类型，如果low为null则使用high值
+            IPType ipType = null;
+            if (orgRange.getLow() != null) {
+                ipType = ProxyUtils.getIpType(orgRange.getCkFieldType(), orgRange.getLow().toString());
+            }
             if (null != ipType) {
                 rangeConverted.setCkFieldName(SqlUtils.generateIpSql(ckFieldName, ipType, false));
                 rangeConverted.setHigh(SqlUtils.generateIpSql(orgRange.getHigh(), ipType, true));
