@@ -15,6 +15,7 @@
  */
 package com.ly.ckibana.parser;
 
+import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
 import com.ly.ckibana.constants.Constants;
 import com.ly.ckibana.constants.SqlConstants;
@@ -42,6 +43,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * 封装明细hits结果类.
@@ -49,6 +51,18 @@ import java.util.Map;
 @Slf4j
 @Service
 public class HitsResultParser {
+
+    /**
+     * 包含JSON字段的hits查询需要显式指定FORMAT，避免jdbc在SETTINGS后追加FORMAT导致语法错误.
+     */
+    private static final String JSON_HIT_FORMAT = "FORMAT TabSeparatedWithNamesAndTypes";
+
+    /**
+     * 将JSON父字段输出为JSON对象文本，便于回填_source后按嵌套结构展示.
+     */
+    private static final String JSON_HIT_SETTINGS = "SETTINGS output_format_json_named_tuples_as_objects = 1";
+
+    private static final String JSON_HIT_SELECT_TEMPLATE = "toJSONString(%s) as %s";
 
     @Resource
     private CkService ckService;
@@ -149,10 +163,44 @@ public class HitsResultParser {
 
     public CkRequest buildHitRequest(CkRequestContext ckRequestContext) {
         CkRequest result = ProxyUtils.buildCkRequest(ckRequestContext);
+        List<String> jsonColumns = getJsonColumns(ckRequestContext.getColumns());
+        if (!jsonColumns.isEmpty()) {
+            result.setSelect(buildHitSelect(ckRequestContext.getColumns(), jsonColumns));
+            result.setFormat(JSON_HIT_FORMAT);
+            result.setSettings(JSON_HIT_SETTINGS);
+        }
         result.limit(ckRequestContext.getSize());
         result.orderBy(ckRequestContext.getSort());
         result.appendWhere(ckRequestContext.getQuery());
         return result;
+    }
+
+    /**
+     * 获取表中的JSON父字段.
+     */
+    private List<String> getJsonColumns(Map<String, String> columns) {
+        return columns.entrySet().stream()
+                .filter(entry -> ProxyUtils.isJsonType(entry.getValue()))
+                .map(Map.Entry::getKey)
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * 构建hits查询的select。
+     * JSON子字段不需要单独查询，JSON父字段使用toJSONString输出为JSON文本，避免返回ck内部Tuple结构。
+     */
+    private String buildHitSelect(Map<String, String> columns, List<String> jsonColumns) {
+        return columns.entrySet().stream()
+                .filter(entry -> jsonColumns.stream()
+                        .noneMatch(jsonColumn -> entry.getKey().startsWith(jsonColumn + ".")))
+                .map(entry -> {
+                    String fieldSqlPart = ProxyUtils.getFieldSqlPart(entry.getKey());
+                    if (!ProxyUtils.isJsonType(entry.getValue())) {
+                        return fieldSqlPart;
+                    }
+                    return String.format(JSON_HIT_SELECT_TEMPLATE, fieldSqlPart, fieldSqlPart);
+                })
+                .collect(Collectors.joining(", "));
     }
 
     /**
@@ -170,8 +218,9 @@ public class HitsResultParser {
         for (int i = 0; i < hitResult.size(); i++) {
             Hit hitTemp = new Hit();
             //解压扩展字段,ck field->es field
-            JSONObject hitSource = setHitResource(hitResult, i, hitTemp);
-            hitTemp.setIndex(generateHitsIndexValue(ckRequestContext.getTableName(), hitSource.get(ckRequestContext.getIndexPattern().getTimeField())));
+            JSONObject hitSource = setHitResource(ckRequestContext, hitResult, i, hitTemp);
+            Object timeValue = getHitFieldValue(hitSource, ckRequestContext.getIndexPattern().getTimeField());
+            hitTemp.setIndex(generateHitsIndexValue(ckRequestContext.getTableName(), timeValue));
             hitTemp.setId(generateHitsId(i, hitTemp));
             setHitFieldsResponse(ckRequestContext, hitSource, hitTemp);
             setHitSortResponse(ckRequestContext, hitSource, hitTemp);
@@ -303,11 +352,56 @@ public class HitsResultParser {
         response.getHits().setTotal(tempCount);
     }
 
-    private JSONObject setHitResource(List<JSONObject> hitResult, int index, Hit hitTemp) {
+    private JSONObject setHitResource(CkRequestContext ckRequestContext, List<JSONObject> hitResult, int index, Hit hitTemp) {
         JSONObject result = hitResult.get(index);
         unZipExtension(result);
+        parseJsonColumns(ckRequestContext, result);
         hitTemp.setSource(result);
         return result;
+    }
+
+    /**
+     * 将JSON父字段的JSON文本回填为嵌套对象，便于kibana按_source嵌套结构展示和检索.
+     */
+    private void parseJsonColumns(CkRequestContext ckRequestContext, JSONObject hitSource) {
+        ckRequestContext.getColumns().forEach((name, type) -> {
+            if (!ProxyUtils.isJsonType(type)) {
+                return;
+            }
+            Object value = hitSource.get(name);
+            if (!(value instanceof String)) {
+                return;
+            }
+            String json = (String) value;
+            if (StringUtils.isBlank(json)) {
+                return;
+            }
+            try {
+                hitSource.put(name, JSON.parse(json));
+            } catch (Exception e) {
+                log.warn("parse json column failed, field:{}", name, e);
+            }
+        });
+    }
+
+    /**
+     * 获取hits字段值，支持JSON子字段的层级路径，如event.type.
+     */
+    private Object getHitFieldValue(JSONObject hitSource, String fieldName) {
+        if (StringUtils.isBlank(fieldName)) {
+            return null;
+        }
+        if (hitSource.containsKey(fieldName)) {
+            return hitSource.get(fieldName);
+        }
+        Object current = hitSource;
+        for (String part : fieldName.split("\\.")) {
+            if (!(current instanceof Map)) {
+                return null;
+            }
+            current = ((Map<?, ?>) current).get(part);
+        }
+        return current;
     }
 
     /**
@@ -322,10 +416,11 @@ public class HitsResultParser {
         List<DocValue> docValues = ckRequestContext.getDocValues();
         for (DocValue each : docValues) {
             String uiField = each.getFieldName();
-            if (!hit.containsKey(uiField)) {
+            Object value = getHitFieldValue(hit, ProxyUtils.convertUiFieldToEsField(uiField));
+            if (value == null) {
                 continue;
             }
-            fields.put(uiField, List.of(hit.get(uiField)));
+            fields.put(uiField, List.of(value));
         }
         hitTemp.setFields(fields);
     }
@@ -341,8 +436,8 @@ public class HitsResultParser {
         List<Object> sort = new ArrayList<>();
         List<SortedField> sortedFields = ckRequestContext.getSortingFields();
         for (SortedField each : sortedFields) {
-            String tempCkSortFieldName = each.getOrgFiledName();
-            sort.add(v.get(tempCkSortFieldName));
+            String uiField = each.getOrgFiledName();
+            sort.add(getHitFieldValue(v, ProxyUtils.convertUiFieldToEsField(uiField)));
         }
         hitTemp.setSort(sort);
     }

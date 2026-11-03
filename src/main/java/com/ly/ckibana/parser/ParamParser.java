@@ -204,7 +204,19 @@ public class ParamParser {
     }
 
     private boolean validAggField(String aggType, String aggField, Map<String, String> supportColumns) {
-        return isFiltersAgg(aggType) || !isMissAggField(aggField) && !isMissAggFieldColumn(aggField, supportColumns);
+        return isFiltersAgg(aggType) || !isMissAggField(aggField) && !isMissAggFieldColumn(aggField, supportColumns)
+                && !isJsonParentField(aggField, supportColumns);
+    }
+
+    /**
+     * 是否为JSON父字段，JSON父字段不能直接聚合，仅支持其子字段.
+     *
+     * @param aggField       aggField
+     * @param supportColumns supportColumns
+     * @return 是否为JSON父字段
+     */
+    private boolean isJsonParentField(String aggField, Map<String, String> supportColumns) {
+        return aggField != null && ProxyUtils.isJsonType(supportColumns.getOrDefault(aggField, StringUtils.EMPTY));
     }
 
     /**
@@ -276,6 +288,10 @@ public class ParamParser {
         for (Map.Entry<String, String> each : columns.entrySet()) {
             String ckName = each.getKey();
             String ckType = each.getValue();
+            //JSON父字段不能直接参与比较，仅暴露其子字段；子字段已由CkService查询列信息时展开
+            if (ProxyUtils.isJsonType(ckType)) {
+                continue;
+            }
             //当isForSelectTimeField为true情况，若indexPattern已经设置时间字段，则非时间字段按原始类型返回即可。
             String esType = ProxyUtils.convertCkTypeToEsType(ckName, ckType,
                     isNotIndexPatternTimeField(indexPattern, ckName) ? Boolean.FALSE : isForSelectTimeField);

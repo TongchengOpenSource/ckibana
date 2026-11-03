@@ -31,6 +31,7 @@ It is recommended to use version 6.x of Kibana. This version is used internally 
 
 - Version Support: Compatible with ElasticSearch and Kibana versions 6.x, 7.x（<=7.1.1）.
 - Syntax Support: Compatible with common ElasticSearch syntax (note: ip_range and date_range can only be queried using the querystring syntax in the search box).
+- Semi-structured Data: Supports ClickHouse 22.3+ `JSON` / `Object('json')` columns. JSON subfields are discovered and can be used in filters, sorting and aggregations like ordinary fields.
 - Sampling Function: For queries with hit results exceeding the threshold, it supports dynamic calculation of sampling and result restoration to improve query performance and ensure that the basic trend of the chart is consistent with the real data trend (the larger the flow control threshold, the closer the real chart trend is).
 - Cache Function: Supports using ElasticSearch to cache results to improve the performance of repeated queries.
 - Time Round Function: Supports rounding query time, for example, round 20 seconds (example: if the query time is in seconds 0-19, it will automatically round to 0; if it is in seconds 20-39, it will automatically round to 20 seconds, for example, if the query time is from 01:50:15 to 05:52:47, it will automatically adjust to 01:50:00 to 05:52:40). Used in conjunction with the cache function, it can effectively alleviate the pressure on ClickHouse caused by concurrent queries of the same statement by multiple users.
@@ -53,6 +54,14 @@ It is recommended to use version 6.x of Kibana. This version is used internally 
 | filter item             |            |
 | cardinality             |            |
 
+#### JSON / Semi-structured Data
+
+ClickHouse 22.3+ provides the experimental `Object('json')` / `JSON` type. CKibana discovers its leaf subfields (e.g. `event.type`, `event.actor.login`) and registers them in the index pattern, so they can be used in filters, sorting and aggregations:
+
+- `allow_experimental_object_type=1` must be enabled when creating/writing the ClickHouse table.
+- Subfields are read via `desc <table> SETTINGS describe_include_subcolumns=1, describe_extend_object_types=1`; only fields that appear in already-written data are exposed.
+- Hit queries return JSON parent fields as nested JSON objects for display.
+- Array subfields of JSON do not support range queries (same as ordinary Array fields).
 
 #### UnSupported  Syntax:
 Kibana Query Language(KQL)  is not supported, it is recommended to use the lucene instead。
