@@ -379,7 +379,7 @@ public class HitsResultParser {
             try {
                 hitSource.put(name, JSON.parse(json));
             } catch (Exception e) {
-                log.warn("parse json column failed, field:{}, value:{}", name, json, e);
+                log.warn("parse json column failed, field:{}", name, e);
             }
         });
     }
