@@ -67,10 +67,10 @@ public class BoolClauseStrategy implements ClauseStrategy {
      */
     private String buildBoolQuerySqlByType(BoolCombiningQueryType type, JSONObject boolObj, CkRequestContext ckRequestContext) {
         String result = "";
-        if (!boolObj.containsKey(type.name().toLowerCase())) {
+        JSONArray array = getClauseArray(boolObj, type.name().toLowerCase());
+        if (array == null || array.isEmpty()) {
             return result;
         }
-        JSONArray array = boolObj.getJSONArray(type.name().toLowerCase());
         if (BoolCombiningQueryType.MUST.equals(type) || BoolCombiningQueryType.FILTER.equals(type)) {
             result = buildChildSql(" AND ", "(%s)", array, ckRequestContext);
         } else if (BoolCombiningQueryType.MUST_NOT.equals(type)) {
@@ -79,6 +79,27 @@ public class BoolClauseStrategy implements ClauseStrategy {
             result = buildChildSql(" OR ", "(%s)", array, ckRequestContext);
         }
         return result;
+    }
+
+    /**
+     * bool查询的子条件既可能是数组也可能是单个对象，统一转换为数组处理.
+     * KQL 的 not 语法会生成 must_not: { ... } 这种单对象结构.
+     *
+     * @param boolObj bool查询
+     * @param key     子条件key
+     * @return 子条件数组
+     */
+    private JSONArray getClauseArray(JSONObject boolObj, String key) {
+        Object value = boolObj.get(key);
+        if (value instanceof JSONArray) {
+            return (JSONArray) value;
+        }
+        if (value instanceof JSONObject) {
+            JSONArray result = new JSONArray();
+            result.add(value);
+            return result;
+        }
+        return null;
     }
 
     private String buildChildSql(String delimiter, String format, JSONArray array, CkRequestContext ckRequestContext) {

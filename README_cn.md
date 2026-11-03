@@ -22,7 +22,7 @@ CKibana是一个为了能够在原生kibana上直接使用ElasticSearch语法查
 ## Features
 
 - 版本支持: 兼容ElasticSearch跟kibana 6.x、7.x 版本(<=7.7.1)
-- 语法支持: 兼容ElasticSearch常用语法(注: ip_range跟date_range仅可在搜索框中使用querystring语法查询)
+- 语法支持: 兼容ElasticSearch常用语法(注: ip_range跟date_range仅可在搜索框中使用querystring语法查询)，并兼容字段匹配、`-` 排除、`*` 通配符等常用KQL写法。
 - 采样功能: 对于命中结果超过阈值的查询,支持动态计算采样+还原结果,提高查询性能且保障图表趋势基本跟真实数据趋势一致(限流阈值越大跟真实图表趋势越接近)。
 - 缓存功能: 支持使用ElasticSearch来做结果缓存,来提升重复查询的性能
 - 时间Round功能: 支持round查询时间,比如20s的round(例子: 查询时间秒在0-19s则自动round到0,20s-39s自动round到20s,比如查询时间是从01:50:15到05:52:47,则自动调整为从01:
@@ -45,6 +45,32 @@ CKibana是一个为了能够在原生kibana上直接使用ElasticSearch语法查
 | filters                 | 目前仅支持第一层聚合             |
 | filter item             |                        |
 | cardinality             |                        |
+
+#### 常用查询语法对照
+
+Kibana 搜索框可使用 KQL 或 Lucene 两种查询语言。ckibana 兼容 Lucene 查询串，并对下表中的常用 KQL 写法做了转换：
+
+| 场景 | KQL 写法 | ckibana 搜索框写法（Lucene） | ckibana 行为 |
+| --- | --- | --- | --- |
+| 字段匹配 | `field:value` | `field:value` | `field LIKE '%value%'` |
+| 排除单个元素 | `-field:value` | `-field:value` / `NOT field:value` | `NOT (field LIKE ...)` |
+| 前缀通配 | `field:abc*` | `field:abc*` | `field LIKE 'abc%'` |
+| 后缀通配 | `field:*abc` | `field:*abc` | `field LIKE '%abc'` |
+| 中间通配 | `field:a*c` | `field:a*c` | `field LIKE 'a%c'` |
+| 单字符通配 | 不支持 | `field:a?c` | `field LIKE 'a_c'` |
+| 字段存在 | `field:*` | `field:*` | `field` 非 NULL |
+| 范围 | `field >= 10 and field <= 20` | `field:[10 TO 20]` 或 `field:>=10 AND field:<=20` | 比较运算 |
+| 多值 | `field:(a or b)` | `field:(a,b)` | 多个条件 OR 组合 |
+| 精确匹配 | `field.keyword:value` | `field.keyword:value` | `field = 'value'` |
+
+说明：
+
+- 通配符仅对字符串字段生效；`*` 转换为 ClickHouse 的 `%`，`?` 转换为 `_`。
+- 匹配字面量 `*`、`?` 时使用反斜杠转义，例如 `field:abc\*`。
+- 查询值中没有 `*`/`?` 时，保留原有扩展：值中的 `%` 直接作为 ClickHouse LIKE 通配符使用（例如 `field:s1value%`）。
+- KQL 与 Lucene 的 `and`/`or`/`not` 大小写不同：Lucene 模式下请使用 `AND`/`OR`/`NOT`。遇到上表中未覆盖的 KQL 语法时，请关闭 KQL 并切换为 Lucene：
+
+![关闭KQL](img_close_kql.png)
 
 ## Get started
 ### quick start

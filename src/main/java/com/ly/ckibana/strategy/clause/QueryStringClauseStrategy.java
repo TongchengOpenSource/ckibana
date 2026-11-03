@@ -15,6 +15,7 @@
  */
 package com.ly.ckibana.strategy.clause;
 
+import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
 import com.ly.ckibana.constants.Constants;
 import com.ly.ckibana.constants.MsgConstants;
@@ -253,7 +254,7 @@ public class QueryStringClauseStrategy implements ClauseStrategy {
             convertContext.setCurrLogicalOp(joinLogicalOp(currentParagraph, preParagraph));
         } else if (SqlUtils.isColonSymbol(currentParagraph)) {
             //当前为冒号。截取上一个段落为key
-            convertContext.setCurrField(convertContext.getPreParagraph());
+            collectFieldAndLogicalOp(convertContext);
         } else if (SqlUtils.isColonSymbol(convertContext.getPreParagraph())) {
             //前一段为冒号，解析value
             currentParagraph = getValueAndUpdateCurrentParagraphPos(convertContext, paragraphs);
@@ -263,6 +264,21 @@ public class QueryStringClauseStrategy implements ClauseStrategy {
         return currentParagraph;
     }
     
+    /**
+     * 收集字段名。字段前的 - 表示排除查询（KQL/Lucene 语法），转为 NOT 逻辑.
+     *
+     * @param convertContext 解析上下文
+     */
+    private void collectFieldAndLogicalOp(QueryStringClauseParseContext convertContext) {
+        String fieldParagraph = convertContext.getPreParagraph();
+        if (!SqlUtils.isNegatedField(fieldParagraph)) {
+            convertContext.setCurrField(fieldParagraph);
+            return;
+        }
+        convertContext.setCurrField(fieldParagraph.substring(1));
+        convertContext.setCurrLogicalOp(SqlUtils.joinNegation(convertContext.getCurrLogicalOp()));
+    }
+
     /**
      * 初始化queryString解析参数.
      *
@@ -391,9 +407,32 @@ public class QueryStringClauseStrategy implements ClauseStrategy {
     }
 
     private String getQueryString(JSONObject obj) {
-        if (obj.containsKey(Constants.QUERY)) {
-            return obj.getString(Constants.QUERY);
+        if (!obj.containsKey(Constants.QUERY)) {
+            return "";
         }
-        return "";
+        return appendFieldForKqlWildcard(obj, obj.getString(Constants.QUERY));
+    }
+
+    /**
+     * KQL 通配符查询会生成 query_string:{fields:["field"], query:"abc*"}，此处在查询值前补全字段名.
+     *
+     * @param obj   query_string参数
+     * @param query 查询值
+     * @return 补全字段名后的查询值
+     */
+    private String appendFieldForKqlWildcard(JSONObject obj, String query) {
+        if (StringUtils.isBlank(query) || query.contains(Constants.Symbol.SINGLE_SPACE_STRING)
+                || query.contains(Constants.Symbol.COLON)) {
+            return query;
+        }
+        JSONArray fields = obj.getJSONArray(Constants.QUERY_FIELDS);
+        if (fields == null || fields.size() != 1) {
+            return query;
+        }
+        String field = fields.getString(0);
+        if (StringUtils.isBlank(field) || field.contains(Constants.Symbol.COLON)) {
+            return query;
+        }
+        return field + Constants.Symbol.COLON + query;
     }
 }
