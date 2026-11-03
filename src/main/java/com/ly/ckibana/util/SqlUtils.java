@@ -225,10 +225,122 @@ public class SqlUtils {
         IPType ipType = ProxyUtils.getIpType(type, value);
         if (null != ipType && ipType.getIsCkIpType()) {
             return String.format("%s %s", generateIpSql(fieldName, ipType, Boolean.FALSE), generateIpSql(value, ipType, Boolean.TRUE));
+        } else if (containsWildcard(value)) {
+            return getWildcardLikeSql(fieldName, value);
         } else if (value.contains(Constants.CK_LIKE_SPLIT)) {
             return String.format("%s like '%s'", fieldName, value);
         }
         return String.format("%s like '%%%s%%'", fieldName, value);
+    }
+
+    /**
+     * 是否包含 Lucene/KQL 通配符（* 或 ?）.
+     *
+     * @param value 查询值
+     * @return boolean
+     */
+    public static boolean containsWildcard(String value) {
+        return StringUtils.isNotEmpty(value) && (value.indexOf(Constants.Symbol.ASTERISK_CHAR) >= 0
+                || value.indexOf(Constants.Symbol.QUESTION_MARK_CHAR) >= 0);
+    }
+
+    /**
+     * 将 Lucene/KQL 通配符值转换为 ClickHouse LIKE 模式.
+     * * -> %，? -> _；反斜杠转义的字符按字面量处理；模式中已有的 %、_ 按字面量转义.
+     *
+     * @param value 通配符值
+     * @return LIKE 模式
+     */
+    public static String convertWildcardToLike(String value) {
+        StringBuilder result = new StringBuilder(value.length());
+        boolean escaped = false;
+        for (int i = 0; i < value.length(); i++) {
+            char current = value.charAt(i);
+            if (escaped) {
+                result.append(escapeLikeChar(current));
+                escaped = false;
+            } else if (current == Constants.Symbol.BACKSLASH_CHAR) {
+                escaped = true;
+            } else if (current == Constants.Symbol.ASTERISK_CHAR) {
+                result.append(Constants.Symbol.PERCENT);
+            } else if (current == Constants.Symbol.QUESTION_MARK_CHAR) {
+                result.append(Constants.Symbol.UNDERSCORE);
+            } else {
+                result.append(escapeLikeChar(current));
+            }
+        }
+        if (escaped) {
+            result.append(Constants.Symbol.BACKSLASH_CHAR).append(Constants.Symbol.BACKSLASH_CHAR);
+        }
+        return result.toString();
+    }
+
+    /**
+     * 生成通配符 LIKE 查询.
+     *
+     * @param fieldName 字段名
+     * @param value     通配符值
+     * @return sql
+     */
+    public static String getWildcardLikeSql(String fieldName, String value) {
+        return String.format("%s like '%s'", fieldName, escapeSqlLiteral(convertWildcardToLike(value)));
+    }
+
+    /**
+     * 生成忽略大小写的通配符查询.
+     *
+     * @param fieldName 字段名
+     * @param value     通配符值
+     * @return sql
+     */
+    public static String getCaseIgnoreWildcardSql(String fieldName, String value) {
+        return String.format("(lower(%s) like lower('%s'))", fieldName, escapeSqlLiteral(convertWildcardToLike(value)));
+    }
+
+    /**
+     * Lucene/KQL 中字段前的 - 表示排除，如 -field:value.
+     *
+     * @param field 字段段落
+     * @return boolean
+     */
+    public static boolean isNegatedField(String field) {
+        return StringUtils.length(field) > 1 && field.charAt(0) == Constants.Symbol.MINUS_CHAR;
+    }
+
+    /**
+     * 将当前逻辑运算符与 NOT 组合，避免丢失已有的 AND/OR.
+     *
+     * @param logicalOp 当前逻辑运算符
+     * @return 组合后的逻辑运算符
+     */
+    public static String joinNegation(String logicalOp) {
+        String current = StringUtils.trimToEmpty(logicalOp);
+        if (StringUtils.isBlank(current)) {
+            return wrapFieldSpace(SqlConstants.NOT);
+        }
+        if (StringUtils.endsWithIgnoreCase(current, SqlConstants.NOT)) {
+            return logicalOp;
+        }
+        return wrapFieldSpace(current + Constants.Symbol.SINGLE_SPACE_STRING + SqlConstants.NOT);
+    }
+
+    private static String escapeLikeChar(char value) {
+        if (value == Constants.Symbol.PERCENT.charAt(0) || value == Constants.Symbol.UNDERSCORE.charAt(0)
+                || value == Constants.Symbol.BACKSLASH_CHAR) {
+            return Constants.Symbol.BACKSLASH_CHAR + String.valueOf(value);
+        }
+        return String.valueOf(value);
+    }
+
+    /**
+     * ClickHouse 字符串字面量中的反斜杠需要再次转义.
+     *
+     * @param value LIKE 模式
+     * @return SQL 字面量内容
+     */
+    private static String escapeSqlLiteral(String value) {
+        return value.replace(String.valueOf(Constants.Symbol.BACKSLASH_CHAR),
+                String.valueOf(Constants.Symbol.BACKSLASH_CHAR) + Constants.Symbol.BACKSLASH_CHAR);
     }
 
     /**

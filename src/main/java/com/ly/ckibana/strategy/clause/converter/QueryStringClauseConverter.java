@@ -188,9 +188,13 @@ public class QueryStringClauseConverter {
                 sqlValue = sqlValue.toLowerCase();
             }
             String partSql = ProxyUtils.isPreciseField(field.getName())
-                    ? SqlUtils.getEqualsSql(sqlName, sqlValue, Boolean.TRUE)
+                    ? (SqlUtils.containsWildcard(sqlValue)
+                        ? SqlUtils.getWildcardLikeSql(sqlName, sqlValue)
+                        : SqlUtils.getEqualsSql(sqlName, sqlValue, Boolean.TRUE))
                     : (ProxyUtils.isCaseIgnoreQuery(field.getName())
-                        ? SqlUtils.getCaseIgnoreString(sqlName, sqlValue)
+                        ? (SqlUtils.containsWildcard(sqlValue)
+                            ? SqlUtils.getCaseIgnoreWildcardSql(sqlName, sqlValue)
+                            : SqlUtils.getCaseIgnoreString(sqlName, sqlValue))
                         : SqlUtils.getLikeByType(sqlName, sqlValue, field.getCkType()));
             joiner.add(partSql);
         }

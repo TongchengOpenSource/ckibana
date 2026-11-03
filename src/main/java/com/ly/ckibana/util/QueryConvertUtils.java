@@ -40,15 +40,20 @@ public class QueryConvertUtils {
      * @return sql
      */
     public static String convertMatchPhraseToSql(String uiField, String ckFieldName, Object body, String type) {
+        String value = (String) ProxyUtils.trimNull(body);
         String result;
         // 忽略大小写查询语法
         if (ProxyUtils.isCaseIgnoreQuery(uiField) || ProxyUtils.isCaseIgnoreKeywordStringQuery(uiField)) {
-            result = convertCaseIgnoreQueryToSql(uiField, ckFieldName, body);
+            result = SqlUtils.containsWildcard(value)
+                    ? SqlUtils.getCaseIgnoreWildcardSql(ckFieldName, value)
+                    : convertCaseIgnoreQueryToSql(uiField, ckFieldName, value);
         } else if (ProxyUtils.isPreciseField(uiField)) {
-            // host或带.keyword精确查询
-            result = SqlUtils.getEqualsSql(ckFieldName, body, Boolean.TRUE);
+            // host或带.keyword精确查询；通配符查询仍需使用like
+            result = SqlUtils.containsWildcard(value)
+                    ? SqlUtils.getWildcardLikeSql(ckFieldName, value)
+                    : SqlUtils.getEqualsSql(ckFieldName, value, Boolean.TRUE);
         } else {
-            result = SqlUtils.getLikeByType(ckFieldName, (String) ProxyUtils.trimNull(body), type);
+            result = SqlUtils.getLikeByType(ckFieldName, value, type);
         }
         return result;
     }

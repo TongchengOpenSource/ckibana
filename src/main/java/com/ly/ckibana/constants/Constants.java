@@ -61,6 +61,11 @@ public class Constants {
 
     public static final String QUERY = "query";
 
+    /**
+     * query_string.fields，KQL 通配符查询会使用该参数指定字段.
+     */
+    public static final String QUERY_FIELDS = "fields";
+
     public static final String AGGS = "aggs";
 
     public static final String RANGE_FROM = "from";
@@ -150,6 +155,18 @@ public class Constants {
         public static final char RIGHT_PARENTHESIS_CHAR = ')';
 
         public static final char COLON_CHAR = ':';
+
+        public static final char MINUS_CHAR = '-';
+
+        public static final char ASTERISK_CHAR = '*';
+
+        public static final char QUESTION_MARK_CHAR = '?';
+
+        public static final char BACKSLASH_CHAR = '\\';
+
+        public static final String PERCENT = "%";
+
+        public static final String UNDERSCORE = "_";
 
         public static final char LEFT_BRACKET_CHAR = '[';
 

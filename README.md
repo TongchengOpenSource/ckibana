@@ -30,7 +30,7 @@ It is recommended to use version 6.x of Kibana. This version is used internally 
 ## Features
 
 - Version Support: Compatible with ElasticSearch and Kibana versions 6.x, 7.x（<=7.1.1）.
-- Syntax Support: Compatible with common ElasticSearch syntax (note: ip_range and date_range can only be queried using the querystring syntax in the search box).
+- Syntax Support: Compatible with common ElasticSearch syntax (note: ip_range and date_range can only be queried using the querystring syntax in the search box). Common KQL forms such as field match, `-` exclusion and `*` wildcard are translated as well.
 - Sampling Function: For queries with hit results exceeding the threshold, it supports dynamic calculation of sampling and result restoration to improve query performance and ensure that the basic trend of the chart is consistent with the real data trend (the larger the flow control threshold, the closer the real chart trend is).
 - Cache Function: Supports using ElasticSearch to cache results to improve the performance of repeated queries.
 - Time Round Function: Supports rounding query time, for example, round 20 seconds (example: if the query time is in seconds 0-19, it will automatically round to 0; if it is in seconds 20-39, it will automatically round to 20 seconds, for example, if the query time is from 01:50:15 to 05:52:47, it will automatically adjust to 01:50:00 to 05:52:40). Used in conjunction with the cache function, it can effectively alleviate the pressure on ClickHouse caused by concurrent queries of the same statement by multiple users.
@@ -54,10 +54,31 @@ It is recommended to use version 6.x of Kibana. This version is used internally 
 | cardinality             |            |
 
 
-#### UnSupported  Syntax:
-Kibana Query Language(KQL)  is not supported, it is recommended to use the lucene instead。
+#### Query Syntax
 
-![img_1.png](img_close_kql.png)
+Kibana's search bar can run in KQL or Lucene mode. CKibana supports Lucene query strings and translates the common KQL forms below (field match, `-` exclusion, `*` wildcard). For KQL expressions outside this table, turn KQL off and use Lucene:
+
+| Purpose | KQL | CKibana search bar (Lucene) | CKibana behavior |
+| --- | --- | --- | --- |
+| Field match | `field:value` | `field:value` | `field LIKE '%value%'` |
+| Exclude one term | `-field:value` | `-field:value` / `NOT field:value` | `NOT (field LIKE ...)` |
+| Prefix wildcard | `field:abc*` | `field:abc*` | `field LIKE 'abc%'` |
+| Suffix wildcard | `field:*abc` | `field:*abc` | `field LIKE '%abc'` |
+| Infix wildcard | `field:a*c` | `field:a*c` | `field LIKE 'a%c'` |
+| Single character | not supported | `field:a?c` | `field LIKE 'a_c'` |
+| Field exists | `field:*` | `field:*` | `field` is not NULL |
+| Range | `field >= 10 and field <= 20` | `field:[10 TO 20]` or `field:>=10 AND field:<=20` | comparison |
+| Multiple values | `field:(a or b)` | `field:(a,b)` | OR-combined conditions |
+| Exact match | `field.keyword:value` | `field.keyword:value` | `field = 'value'` |
+
+Notes:
+
+- Wildcards apply to string fields only; `*` becomes ClickHouse `%` and `?` becomes `_`.
+- Escape a literal `*` or `?` with a backslash, for example `field:abc\*`.
+- When the value contains no `*`/`?`, the existing extension is kept: a `%` in the value is passed to ClickHouse LIKE directly (for example `field:s1value%`).
+- KQL and Lucene use different operator casing: use `AND`/`OR`/`NOT` in Lucene mode. If a KQL expression is not covered by this table, turn KQL off and switch to Lucene:
+
+![Turn off KQL](img_close_kql.png)
 
 ## Get started
 ### quick start

@@ -17,6 +17,7 @@ package com.ly.ckibana.model.enums;
 
 public enum QueryClauseType {
     EXISTS,
+    MATCH,
     MATCH_PHRASE,
     RANGE,
     QUERY_STRING,

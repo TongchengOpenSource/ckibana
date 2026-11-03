@@ -90,6 +90,8 @@ public class SqlConstants {
     public static final String TO = "TO";
 
     public static final String OR = "OR";
+
+    public static final String NOT = "NOT";
     
     /**
      * CK字段类型.
