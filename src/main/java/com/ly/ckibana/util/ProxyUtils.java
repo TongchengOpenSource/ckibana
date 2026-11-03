@@ -31,6 +31,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpStatus;
 
 import java.util.*;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 @Slf4j
 public class ProxyUtils {
@@ -43,6 +45,16 @@ public class ProxyUtils {
 
     private static final List<String> NUMBER_TYPE = Arrays.asList("UInt8", "UInt16", "UInt32", "UInt64",
             "Int8", "Int16", "Int32", "Int64", "Float32", "Float64", "Decimal");
+
+    /**
+     * ck JSON父字段下的数组size内部子列后缀，如event.tags.size0.
+     */
+    private static final Pattern ARRAY_SIZE_SUB_COLUMN_PATTERN = Pattern.compile("size\\d+");
+
+    /**
+     * 字段名中的层级分隔符.
+     */
+    private static final String FIELD_LEVEL_SEPARATOR = ".";
 
     /**
      * 从es的interval str（30s）中解析数字和单位（30,s）.
@@ -81,6 +93,85 @@ public class ProxyUtils {
         result = Utils.trimPrefix(result, "LowCardinality");
         result = Utils.trimByPrefixAndSuffixChars(result, "(", ")");
         return result;
+    }
+
+    /**
+     * 是否为JSON类字段，包括实验特性Object('json')与JSON类型.
+     * JSON父字段不能直接参与比较，查询时需使用其子字段.
+     *
+     * @param type ck类型
+     * @return 是否为JSON类字段
+     */
+    public static boolean isJsonType(String type) {
+        String result = Utils.trimPrefix(type, "Array");
+        result = Utils.trimPrefix(result, "Nullable");
+        result = Utils.trimPrefix(result, "LowCardinality");
+        result = Utils.trimByPrefixAndSuffixChars(result, "(", ")");
+        return "JSON".equals(result) || result.startsWith("JSON(")
+                || "Object".equals(result) || result.startsWith("Object(");
+    }
+
+    /**
+     * 合并包含JSON子列的desc结果到普通desc结果中。
+     * 保留JSON父字段（查询时会被参数转换拦截），并补充可直接查询的叶子子字段，
+     * 同时过滤数组内部size子列和中间对象节点。
+     *
+     * @param baseColumns           普通desc结果
+     * @param columnsWithSubColumns 开启子列描述后的desc结果
+     * @return 合并后的列信息
+     */
+    public static Map<String, String> mergeJsonSubColumns(Map<String, String> baseColumns,
+                                                          Map<String, String> columnsWithSubColumns) {
+        Map<String, String> result = new LinkedHashMap<>(baseColumns);
+        List<String> jsonColumns = baseColumns.entrySet().stream()
+                .filter(entry -> isJsonType(entry.getValue()))
+                .map(Map.Entry::getKey)
+                .collect(Collectors.toList());
+        for (String jsonColumn : jsonColumns) {
+            result.putAll(collectLeafSubColumns(jsonColumn, columnsWithSubColumns));
+        }
+        return result;
+    }
+
+    /**
+     * 收集JSON字段下可直接查询的叶子子列.
+     */
+    private static Map<String, String> collectLeafSubColumns(String jsonColumn, Map<String, String> columnsWithSubColumns) {
+        String prefix = jsonColumn + FIELD_LEVEL_SEPARATOR;
+        Map<String, String> subColumns = new LinkedHashMap<>();
+        columnsWithSubColumns.forEach((name, type) -> {
+            if (name.startsWith(prefix) && !isArraySizeSubColumn(name, columnsWithSubColumns)
+                    && !isComplexColumnType(type)) {
+                subColumns.put(name, type);
+            }
+        });
+        Set<String> intermediateColumns = subColumns.keySet().stream()
+                .filter(name -> subColumns.keySet().stream()
+                        .anyMatch(child -> child.startsWith(name + FIELD_LEVEL_SEPARATOR)))
+                .collect(Collectors.toSet());
+        intermediateColumns.forEach(subColumns::remove);
+        return subColumns;
+    }
+
+    /**
+     * 是否为不能直接参与比较的复杂类型，如JSON对象、Tuple、Nested、Map.
+     */
+    private static boolean isComplexColumnType(String type) {
+        return isJsonType(type) || type.startsWith("Tuple(") || type.startsWith("Nested(") || type.startsWith("Map(");
+    }
+
+    /**
+     * 是否为数组类型内部的size子列，如event.tags.size0.
+     * 仅当父字段为数组/Nested类型时才视为内部子列，避免误过滤真实的size0字段.
+     */
+    private static boolean isArraySizeSubColumn(String name, Map<String, String> columns) {
+        int separatorIndex = name.lastIndexOf(FIELD_LEVEL_SEPARATOR);
+        if (separatorIndex <= 0
+                || !ARRAY_SIZE_SUB_COLUMN_PATTERN.matcher(name.substring(separatorIndex + 1)).matches()) {
+            return false;
+        }
+        String parentType = columns.getOrDefault(name.substring(0, separatorIndex), StringUtils.EMPTY);
+        return isArrayType(parentType) || parentType.startsWith("Nested");
     }
 
     /**
@@ -413,6 +504,7 @@ public class ProxyUtils {
 
     /**
      * 将字段名转换为sql中拼接的格式，添加符转义或json内解析函数.
+     * JSON子字段在ck中表现为带层级的物理子列（如event.type），整体转义即可访问。
      */
     public static String getFieldSqlPart(String ckField) {
         String fieldExpr = (checkIfExtensionInnerField(ckField) || ckField.startsWith(Constants.Symbol.BACK_QUOTE_CHAR)) ? "%s" : "`%s`";

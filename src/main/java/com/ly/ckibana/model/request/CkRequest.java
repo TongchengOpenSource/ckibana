@@ -39,6 +39,16 @@ public class CkRequest {
 
     private String limit;
 
+    /**
+     * 查询结果format。用于需要指定FORMAT，且驱动自动追加FORMAT会破坏SETTINGS语法的场景.
+     */
+    private String format;
+
+    /**
+     * 查询级SETTINGS.
+     */
+    private String settings;
+
     public CkRequest() {
     }
 
@@ -125,6 +135,12 @@ public class CkRequest {
         }
         if (StringUtils.isNotBlank(getLimit())) {
             builder.append(" ").append(getLimit());
+        }
+        if (StringUtils.isNotBlank(getFormat())) {
+            builder.append(" ").append(getFormat());
+        }
+        if (StringUtils.isNotBlank(getSettings())) {
+            builder.append(" ").append(getSettings());
         }
         return builder.toString();
     }

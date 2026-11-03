@@ -52,6 +52,7 @@ import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -177,8 +178,54 @@ public class CkService {
     }
 
     public Map<String, String> queryColumns(BalancedClickhouseDataSource clickhouseDataSource, String table) throws Exception {
-        Map<String, String> result = new HashMap<>();
+        Map<String, String> result = queryColumnsBySql(clickhouseDataSource, buildColumnsSql(table, false));
+        if (result.values().stream().noneMatch(ProxyUtils::isJsonType)) {
+            return result;
+        }
+        // JSON父字段不能直接参与比较，补充查询其子列。低版本ck不支持子列描述时保持原列信息。
+        Map<String, String> columnsWithSubColumns = queryColumnsWithJsonSubColumns(clickhouseDataSource, table);
+        return ProxyUtils.mergeJsonSubColumns(result, columnsWithSubColumns);
+    }
+
+    /**
+     * 构建查询列信息的sql.
+     * describe_extend_object_types会将Object('json')父字段展开为具体类型，配合describe_include_subcolumns才能描述JSON子列.
+     * jdbc驱动会在语句末尾追加FORMAT，因此这里显式指定FORMAT，避免SETTINGS后追加FORMAT导致语法错误.
+     *
+     * @param table             表名
+     * @param includeJsonSubColumns 是否包含子列描述
+     * @return 查询列信息的sql
+     */
+    public static String buildColumnsSql(String table, boolean includeJsonSubColumns) {
         String sql = String.format("desc `%s`", table);
+        if (!includeJsonSubColumns) {
+            return sql;
+        }
+        return sql + " FORMAT TabSeparatedWithNamesAndTypes"
+                + " SETTINGS describe_include_subcolumns = 1, describe_extend_object_types = 1";
+    }
+
+    /**
+     * 查询JSON子列信息，兼容不支持describe_extend_object_types的ck版本.
+     */
+    private Map<String, String> queryColumnsWithJsonSubColumns(BalancedClickhouseDataSource clickhouseDataSource, String table) {
+        try {
+            return queryColumnsBySql(clickhouseDataSource, buildColumnsSql(table, true));
+        } catch (Exception e) {
+            log.warn("query json sub columns with extend object types failed, table:{}", table, e);
+        }
+        try {
+            return queryColumnsBySql(clickhouseDataSource,
+                    String.format("desc `%s` FORMAT TabSeparatedWithNamesAndTypes"
+                            + " SETTINGS describe_include_subcolumns = 1", table));
+        } catch (Exception e) {
+            log.warn("query json sub columns failed, table:{}", table, e);
+            return new HashMap<>();
+        }
+    }
+
+    private Map<String, String> queryColumnsBySql(BalancedClickhouseDataSource clickhouseDataSource, String sql) throws Exception {
+        Map<String, String> result = new LinkedHashMap<>();
         try (ClickHouseConnection connection = clickhouseDataSource.getConnection()) {
             ResultSet results = query(connection, sql);
             ResultSetMetaData metaData = results.getMetaData();

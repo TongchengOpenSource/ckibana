@@ -41,6 +41,10 @@ public class ParamConvertUtils {
         if (!columns.containsKey(result)) {
             result = StringUtils.trim(result);
         }
+        // JSON父字段不能直接参与比较，仅支持其子字段查询
+        if (columns.containsKey(result) && ProxyUtils.isJsonType(columns.get(result))) {
+            throw new UnKnownFieldException(result);
+        }
         // 未定义字段不支持查询
         if (!columns.containsKey(result) && !EsConstants.KIBANA_DEFAULT_SORT_FILEDS.contains(orgField)) {
             throw new UnKnownFieldException(result);

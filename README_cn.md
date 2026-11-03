@@ -23,6 +23,7 @@ CKibana是一个为了能够在原生kibana上直接使用ElasticSearch语法查
 
 - 版本支持: 兼容ElasticSearch跟kibana 6.x、7.x 版本(<=7.7.1)
 - 语法支持: 兼容ElasticSearch常用语法(注: ip_range跟date_range仅可在搜索框中使用querystring语法查询)
+- 半结构化数据: 支持 ClickHouse 22.3+ 的 `JSON` / `Object('json')` 类型，自动展开JSON子字段，可像普通字段一样用于过滤、排序和聚合。
 - 采样功能: 对于命中结果超过阈值的查询,支持动态计算采样+还原结果,提高查询性能且保障图表趋势基本跟真实数据趋势一致(限流阈值越大跟真实图表趋势越接近)。
 - 缓存功能: 支持使用ElasticSearch来做结果缓存,来提升重复查询的性能
 - 时间Round功能: 支持round查询时间,比如20s的round(例子: 查询时间秒在0-19s则自动round到0,20s-39s自动round到20s,比如查询时间是从01:50:15到05:52:47,则自动调整为从01:
@@ -45,6 +46,15 @@ CKibana是一个为了能够在原生kibana上直接使用ElasticSearch语法查
 | filters                 | 目前仅支持第一层聚合             |
 | filter item             |                        |
 | cardinality             |                        |
+
+#### JSON/半结构化数据支持
+
+ClickHouse 从 22.3 开始提供实验性的 `Object('json')` / `JSON` 类型。ckibana 会读取其叶子子字段（如 `event.type`、`event.actor.login`）并注册到 index pattern 中，可直接用于过滤、排序和聚合：
+
+- ClickHouse 需开启 `allow_experimental_object_type=1`（建表、写入时）。
+- 子字段通过 `desc <table> SETTINGS describe_include_subcolumns=1, describe_extend_object_types=1` 获取，仅已写入的数据中出现过的字段会被展示。
+- 明细查询会将 JSON 父字段还原为 JSON 对象展示。
+- JSON 中的数组子字段不支持 range 查询（与普通 Array 字段行为一致）。
 
 ## Get started
 ### quick start
